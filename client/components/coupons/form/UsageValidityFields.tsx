@@ -1,0 +1,127 @@
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
+import { DateRangeInput } from "./DateInput";
+import { FormField, fieldInputClass } from "./FormField";
+
+const FIXED_USAGE_OPTIONS = [
+  { value: "only_once", label: "Only once" },
+  { value: "until_runout", label: "Until runout" },
+  { value: "custom", label: "Custom" },
+] as const;
+
+interface UsageValidityFieldsProps {
+  values: CouponFormValues;
+  errors: CouponFormErrors;
+  onChange: (patch: Partial<CouponFormValues>) => void;
+  usageCount?: number;
+}
+
+export function UsageValidityFields({
+  values,
+  errors,
+  onChange,
+  usageCount,
+}: UsageValidityFieldsProps) {
+  const isFixedAmount = values.type === "fixed_amount_off";
+  const showCustomLimit = !isFixedAmount || values.usageLimitMode === "custom";
+
+  const usageHint = usageCount
+    ? `Current successful uses: ${usageCount}. Usage limit cannot be lower than this.`
+    : isFixedAmount && values.usageLimitMode === "only_once"
+      ? "This coupon can be used one time."
+      : isFixedAmount && values.usageLimitMode === "until_runout"
+        ? "This coupon can be used until the end date."
+        : "The coupon becomes unavailable after the successful usage limit is reached.";
+
+  const handleUsageModeChange = (mode: CouponFormValues["usageLimitMode"]) => {
+    if (mode === "only_once") {
+      onChange({ usageLimitMode: mode, usageLimit: "1" });
+      return;
+    }
+    if (mode === "until_runout") {
+      onChange({ usageLimitMode: mode, usageLimit: "0" });
+      return;
+    }
+    onChange({
+      usageLimitMode: mode,
+      usageLimit: values.usageLimit === "0" || values.usageLimit === "1" ? "" : values.usageLimit,
+    });
+  };
+
+  return (
+    <div className="grid gap-5 md:grid-cols-2">
+      <FormField
+        id="validity-dates"
+        label="Validity dates"
+        required
+        error={errors.startDate || errors.expiryDate}
+      >
+        <DateRangeInput
+          id="validity-dates"
+          startDate={values.startDate}
+          endDate={values.expiryDate}
+          onChange={({ startDate, endDate }) => onChange({ startDate, expiryDate: endDate })}
+          invalid={Boolean(errors.startDate || errors.expiryDate)}
+        />
+      </FormField>
+
+      <FormField
+        id="usage-limit"
+        label="Total usage limit"
+        required
+        hint={usageHint}
+        error={errors.usageLimit}
+      >
+        {isFixedAmount ? (
+          <div className="space-y-3">
+            <Select
+              value={values.usageLimitMode || undefined}
+              onValueChange={(value) =>
+                handleUsageModeChange(value as CouponFormValues["usageLimitMode"])
+              }
+            >
+              <SelectTrigger id="usage-limit" aria-invalid={Boolean(errors.usageLimit)}>
+                <SelectValue placeholder="Select usage limit" />
+              </SelectTrigger>
+              <SelectContent>
+                {FIXED_USAGE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {showCustomLimit && (
+              <Input
+                id="usage-limit-custom"
+                inputMode="numeric"
+                value={values.usageLimit === "0" ? "" : values.usageLimit}
+                onChange={(event) => onChange({ usageLimit: event.target.value })}
+                placeholder="500"
+                aria-invalid={Boolean(errors.usageLimit)}
+                className={fieldInputClass(errors.usageLimit)}
+              />
+            )}
+          </div>
+        ) : (
+          <Input
+            id="usage-limit"
+            inputMode="numeric"
+            value={values.usageLimit}
+            onChange={(event) => onChange({ usageLimit: event.target.value })}
+            placeholder="500"
+            aria-invalid={Boolean(errors.usageLimit)}
+            className={fieldInputClass(errors.usageLimit)}
+          />
+        )}
+      </FormField>
+    </div>
+  );
+}
