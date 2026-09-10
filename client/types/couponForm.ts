@@ -4,8 +4,8 @@ import type {
   CustomerType,
   DeliverySpeed,
   DiscountBasis,
-  ParcelSizeRestriction,
   RouteRestriction,
+  SelectableParcelSize,
 } from "@/types/coupon";
 
 export interface VolumeTierInput {
@@ -16,6 +16,7 @@ export interface VolumeTierInput {
 
 export interface CouponFormValues {
   code: string;
+  alias: string;
   type: CouponType;
   discountBasis: DiscountBasis;
   percentageValue: string;
@@ -25,12 +26,12 @@ export interface CouponFormValues {
   deliverySpeed: DeliverySpeed;
   route: RouteRestriction;
   specificRegion: string;
-  parcelSize: ParcelSizeRestriction;
+  parcelSizes: SelectableParcelSize[];
   minWeightKg: string;
   maxWeightKg: string;
   customerType: CustomerType;
   minimumOrderValue: string;
-  customerName: string;
+  customerPhone: string;
   states: AustralianState[];
   startDate: string;
   expiryDate: string;
@@ -67,4 +68,5 @@ export interface CouponFormSubmitContext {
   currentCode?: string;
   lockCode?: boolean;
   minUsageLimit?: number;
+  minAmountUsed?: number;
 }

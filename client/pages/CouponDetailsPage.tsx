@@ -16,9 +16,11 @@ import {
   canDeactivateCoupon,
   findCouponByCode,
   formatAud,
+  formatAmountUsage,
   formatCouponType,
   formatUsage,
   formatUsageLimit,
+  getAmountProgress,
   getAmountRemaining,
   getEffectiveCouponStatus,
   getUnavailableLabel,
@@ -67,6 +69,7 @@ export function CouponDetailsPage() {
   const status = getEffectiveCouponStatus(coupon);
   const unavailableLabel = getUnavailableLabel(coupon);
   const usageProgress = getUsageProgress(coupon);
+  const amountProgress = getAmountProgress(coupon);
   const remainingAmount = getAmountRemaining(coupon);
   const recentLogs = [...coupon.logs]
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
@@ -128,10 +131,11 @@ export function CouponDetailsPage() {
             value={<span className="break-all tracking-wide">{coupon.code}</span>}
             hint="Coupon codes cannot be changed after creation."
           />
+          <DetailField label="Alias" value={coupon.alias?.trim() || "—"} />
           <DetailField label="Coupon Type" value={formatCouponType(coupon.type)} />
           <DetailField
-            label="Customer name"
-            value={coupon.customerName?.trim() || "All eligible customers"}
+            label="Phone number"
+            value={coupon.customerPhone?.trim() || "All eligible customers"}
           />
           <DetailField label="Status" value={<CouponStatusBadge status={status} />} />
           <DetailField label="Created Date" value={formatDate(coupon.createdDate)} />
@@ -224,32 +228,35 @@ export function CouponDetailsPage() {
             )}
           </div>
 
+          <div>
+            <p className="text-caption-sm font-medium text-muted-foreground">Amount exhausted</p>
+            <p className="mt-1 text-sm font-semibold tabular-nums">
+              {formatAmountUsage(coupon)}
+              {isAmountLimitReached(coupon) ? " · exhausted" : ""}
+            </p>
+            {coupon.amountLimit ? (
+              <div className="mt-2 h-2 max-w-md overflow-hidden rounded-full bg-neutral-100">
+                <div
+                  className={cn(
+                    "h-full rounded-full",
+                    isAmountLimitReached(coupon) ? "bg-amber-500" : "bg-neutral-900",
+                  )}
+                  style={{ width: `${amountProgress}%` }}
+                />
+              </div>
+            ) : null}
+          </div>
+
           <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <DetailField label="Total usage limit" value={formatUsageLimit(coupon)} />
             {coupon.amountLimit ? (
-              <>
-                <DetailField label="Amount limit" value={formatAud(coupon.amountLimit)} />
-                <DetailField
-                  label="Amount used"
-                  value={
-                    isAmountLimitReached(coupon)
-                      ? `${formatAud(coupon.amountUsed ?? 0)} / ${formatAud(coupon.amountLimit)} used`
-                      : formatAud(coupon.amountUsed ?? 0)
-                  }
-                />
-                {remainingAmount !== null && (
-                  <DetailField
-                    label="Remaining amount"
-                    value={
-                      <span>
-                        {formatAud(remainingAmount)}
-                        {isAmountLimitReached(coupon) ? " · exhausted" : ""}
-                      </span>
-                    }
-                  />
-                )}
-              </>
-            ) : null}
+              <DetailField
+                label="Remaining amount"
+                value={remainingAmount !== null ? formatAud(remainingAmount) : "—"}
+              />
+            ) : (
+              <DetailField label="Amount limit" value="No amount limit" />
+            )}
           </dl>
         </div>
       </FormSection>

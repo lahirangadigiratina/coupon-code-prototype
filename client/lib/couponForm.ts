@@ -5,7 +5,7 @@ import {
   validateCouponCode,
 } from "@/lib/couponCode";
 import { isCouponExpired } from "@/lib/couponDisplay";
-import { getPredefinedParcelSize, isPredefinedParcelSize } from "@/lib/parcelSizes";
+import { getRestrictedParcelSizes } from "@/lib/parcelSizes";
 import { parseDateOnly } from "@/lib/utils";
 import type { Coupon, CouponDiscount, CouponRestrictions, CouponType } from "@/types/coupon";
 import type {
@@ -29,6 +29,7 @@ export function createDefaultVolumeTiers(): VolumeTierInput[] {
 export function createDefaultCouponFormValues(): CouponFormValues {
   return {
     code: "",
+    alias: "",
     type: "percentage_off",
     discountBasis: "total_value",
     percentageValue: "",
@@ -38,12 +39,12 @@ export function createDefaultCouponFormValues(): CouponFormValues {
     deliverySpeed: "any",
     route: "all",
     specificRegion: "",
-    parcelSize: "any",
+    parcelSizes: [],
     minWeightKg: "",
     maxWeightKg: "",
     customerType: "all",
     minimumOrderValue: "",
-    customerName: "",
+    customerPhone: "",
     states: [],
     startDate: "",
     expiryDate: "",
@@ -183,7 +184,7 @@ export function validateCouponForm(
     }
   }
 
-  if (values.parcelSize === "custom") {
+  if (values.parcelSizes.includes("custom")) {
     const minWeight = parseNumber(values.minWeightKg);
     const maxWeight = parseNumber(values.maxWeightKg);
 
@@ -253,6 +254,8 @@ export function validateCouponForm(
     const amountLimit = parseNumber(values.amountLimit);
     if (amountLimit === null || amountLimit <= 0) {
       errors.amountLimit = "Amount limit must be greater than 0.";
+    } else if (context.minAmountUsed !== undefined && amountLimit < context.minAmountUsed) {
+      errors.amountLimit = "Amount limit cannot be lower than the discount already given.";
     }
   }
 
@@ -302,17 +305,13 @@ function buildRestrictions(values: CouponFormValues): CouponRestrictions | undef
     }
   }
 
-  if (values.parcelSize === "custom") {
-    restrictions.parcelSize = "custom";
-    const minWeight = parseNumber(values.minWeightKg);
-    const maxWeight = parseNumber(values.maxWeightKg);
-    if (minWeight !== null) restrictions.minWeightKg = minWeight;
-    if (maxWeight !== null) restrictions.maxWeightKg = maxWeight;
-  } else if (isPredefinedParcelSize(values.parcelSize)) {
-    const preset = getPredefinedParcelSize(values.parcelSize);
-    if (preset) {
-      restrictions.parcelSize = values.parcelSize;
-      restrictions.maxWeightKg = preset.maxWeightKg;
+  if (values.parcelSizes.length > 0) {
+    restrictions.parcelSizes = [...values.parcelSizes];
+    if (values.parcelSizes.includes("custom")) {
+      const minWeight = parseNumber(values.minWeightKg);
+      const maxWeight = parseNumber(values.maxWeightKg);
+      if (minWeight !== null) restrictions.minWeightKg = minWeight;
+      if (maxWeight !== null) restrictions.maxWeightKg = maxWeight;
     }
   }
 
@@ -354,6 +353,7 @@ export function buildCouponFromForm(values: CouponFormValues, existing?: Coupon)
   return {
     id: existing?.id ?? `cpn_${crypto.randomUUID()}`,
     code: existing?.code ?? normalizeCouponCodeInput(values.code),
+    alias: values.alias.trim() || null,
     type: values.type,
     discount: buildDiscount(values),
     discountBasis: values.discountBasis,
@@ -363,7 +363,7 @@ export function buildCouponFromForm(values: CouponFormValues, existing?: Coupon)
     usageLimit: resolveUsageLimit(values),
     amountLimit: amountLimit && amountLimit > 0 ? amountLimit : null,
     amountUsed: existing?.amountUsed ?? 0,
-    customerName: values.customerName.trim() || null,
+    customerPhone: values.customerPhone.trim() || null,
     status: isCouponExpired(values.expiryDate)
       ? "expired"
       : existing?.status === "expired"
@@ -405,6 +405,7 @@ export function couponToFormValues(coupon: Coupon): CouponFormValues {
   return {
     ...defaults,
     code: coupon.code,
+    alias: coupon.alias ?? "",
     type: coupon.type,
     discountBasis: coupon.discountBasis ?? "total_value",
     percentageValue: coupon.discount.type === "percentage_off" ? String(coupon.discount.value) : "",
@@ -424,7 +425,7 @@ export function couponToFormValues(coupon: Coupon): CouponFormValues {
     deliverySpeed: coupon.restrictions?.deliverySpeed ?? "any",
     route: coupon.restrictions?.route ?? "all",
     specificRegion: coupon.restrictions?.specificRegion ?? "",
-    parcelSize: coupon.restrictions?.parcelSize ?? "any",
+    parcelSizes: getRestrictedParcelSizes(coupon.restrictions),
     minWeightKg:
       coupon.restrictions?.minWeightKg !== undefined ? String(coupon.restrictions.minWeightKg) : "",
     maxWeightKg:
@@ -435,7 +436,7 @@ export function couponToFormValues(coupon: Coupon): CouponFormValues {
       coupon.restrictions.minimumOrderValue !== null
         ? String(coupon.restrictions.minimumOrderValue)
         : "",
-    customerName: coupon.customerName ?? "",
+    customerPhone: coupon.customerPhone ?? "",
     states: coupon.restrictions?.states ?? [],
     startDate: coupon.startDate,
     expiryDate: coupon.expiryDate,

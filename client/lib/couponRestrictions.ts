@@ -7,7 +7,12 @@ import {
   type Coupon,
 } from "@/types/coupon";
 import { formatAud } from "@/lib/couponDisplay";
-import { formatParcelSizeWeight, getPredefinedParcelSize } from "@/lib/parcelSizes";
+import {
+  formatCustomParcelWeightRange,
+  formatParcelSizeWeight,
+  getPredefinedParcelSize,
+  getRestrictedParcelSizes,
+} from "@/lib/parcelSizes";
 
 const UNRESTRICTED = "No restriction";
 
@@ -28,26 +33,20 @@ export function formatRouteRestriction(coupon: Coupon): string {
 }
 
 export function formatParcelSizeRestriction(coupon: Coupon): string {
-  const size = coupon.restrictions?.parcelSize;
-  if (!size) return UNRESTRICTED;
+  const sizes = getRestrictedParcelSizes(coupon.restrictions);
+  if (sizes.length === 0) return UNRESTRICTED;
 
-  const preset = getPredefinedParcelSize(size);
-  if (preset) {
-    return [
-      preset.label,
-      formatParcelSizeWeight(coupon.restrictions?.maxWeightKg ?? preset.maxWeightKg),
-      preset.description,
-    ].join(" · ");
-  }
+  return sizes
+    .map((size) => {
+      const preset = getPredefinedParcelSize(size);
+      if (preset) {
+        return `${preset.label} (${formatParcelSizeWeight(preset.maxWeightKg)})`;
+      }
 
-  if (size !== "custom") return UNRESTRICTED;
-
-  const min = coupon.restrictions?.minWeightKg;
-  const max = coupon.restrictions?.maxWeightKg;
-  if (min !== undefined && max !== undefined) return `${min}–${max} kg`;
-  if (min !== undefined) return `Min ${min} kg`;
-  if (max !== undefined) return `Max ${max} kg`;
-  return PARCEL_SIZE_LABELS.custom;
+      const customRange = formatCustomParcelWeightRange(coupon.restrictions);
+      return customRange ? `${PARCEL_SIZE_LABELS.custom} (${customRange})` : PARCEL_SIZE_LABELS.custom;
+    })
+    .join(", ");
 }
 
 export function formatCustomerTypeRestriction(coupon: Coupon): string {
@@ -62,6 +61,6 @@ export function formatMinimumOrderRestriction(coupon: Coupon): string {
 
 export function formatStateRestriction(coupon: Coupon): string {
   const states = coupon.restrictions?.states;
-  if (!states || states.length === 0) return UNRESTRICTED;
+  if (!states || states.length === 0) return "All states";
   return states.map((state) => AUSTRALIAN_STATE_LABELS[state]).join(", ");
 }

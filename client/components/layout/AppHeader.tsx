@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
-import { TicketPercent } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "./BrandLogo";
 
 const navItems = [
   { to: "/coupon-codes", label: "Coupon Codes" },
@@ -12,15 +12,7 @@ export function AppHeader() {
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-16 max-w-content items-center justify-between gap-6 px-6">
         <div className="flex min-w-0 items-center gap-4 md:gap-10">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <TicketPercent className="h-5 w-5" />
-            </div>
-            <div className="hidden leading-tight sm:block">
-              <p className="text-sm font-semibold">Admin Portal</p>
-              <p className="text-[11px] text-muted-foreground">Coupon codes</p>
-            </div>
-          </div>
+          <BrandLogo />
           <nav className="flex items-center gap-1">
             {navItems.map((item) => (
               <NavLink

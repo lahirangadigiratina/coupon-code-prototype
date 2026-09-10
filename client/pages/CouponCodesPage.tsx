@@ -67,6 +67,9 @@ function CouponListCard({ coupon }: { coupon: Coupon }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="break-all font-semibold tracking-wide">{coupon.code}</p>
+          {coupon.alias?.trim() ? (
+            <p className="mt-0.5 truncate text-sm text-muted-foreground">{coupon.alias}</p>
+          ) : null}
           <p className="mt-1 text-sm text-foreground">
             {formatCouponType(coupon.type)}
             <span className="text-muted-foreground"> · </span>
@@ -165,7 +168,7 @@ export function CouponCodesPage() {
                 id="coupon-search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search coupon codes"
+                placeholder="Search coupon codes or aliases"
                 className="h-10 bg-background pl-9"
               />
             </div>
@@ -266,6 +269,11 @@ export function CouponCodesPage() {
                     >
                       <div className="min-w-0">
                         <p className="truncate font-semibold tracking-wide">{coupon.code}</p>
+                        {coupon.alias?.trim() ? (
+                          <p className="mt-0.5 truncate text-caption-sm text-muted-foreground">
+                            {coupon.alias}
+                          </p>
+                        ) : null}
                       </div>
                       <p className="text-sm text-foreground">{formatCouponType(coupon.type)}</p>
                       <p className="text-sm font-medium">{formatCouponDiscount(coupon.discount)}</p>

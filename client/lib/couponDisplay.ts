@@ -89,6 +89,16 @@ export function getAmountRemaining(coupon: Coupon): number | null {
   return Math.max(0, coupon.amountLimit - (coupon.amountUsed ?? 0));
 }
 
+export function formatAmountUsage(coupon: Coupon): string {
+  if (!coupon.amountLimit) return "No amount limit";
+  return `${formatAud(coupon.amountUsed ?? 0)} / ${formatAud(coupon.amountLimit)}`;
+}
+
+export function getAmountProgress(coupon: Coupon): number {
+  if (!coupon.amountLimit) return 0;
+  return Math.min(100, ((coupon.amountUsed ?? 0) / coupon.amountLimit) * 100);
+}
+
 export function formatCouponDiscount(discount: CouponDiscount): string {
   if (discount.type === "percentage_off") {
     return `${discount.value}%`;
@@ -136,5 +146,8 @@ export function findCouponByCode(coupons: Coupon[], code: string | undefined): C
 export function couponMatchesSearch(coupon: Coupon, query: string): boolean {
   const term = query.trim().toLowerCase();
   if (!term) return true;
-  return coupon.code.toLowerCase().includes(term);
+  return (
+    coupon.code.toLowerCase().includes(term) ||
+    Boolean(coupon.alias?.toLowerCase().includes(term))
+  );
 }

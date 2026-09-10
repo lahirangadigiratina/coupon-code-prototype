@@ -2,7 +2,8 @@ import type { BookingCart } from "@/types/booking";
 import type { Coupon, VolumeDiscountTier } from "@/types/coupon";
 import { AUSTRALIAN_STATE_LABELS, CUSTOMER_TYPE_LABELS, DELIVERY_SPEED_LABELS } from "@/types/coupon";
 import { calculateCouponDiscount, getCouponDiscountBase } from "@/lib/couponDiscount";
-import { getParcelWeightBounds } from "@/lib/parcelSizes";
+import { formatParcelSizeRestriction } from "@/lib/couponRestrictions";
+import { parcelMatchesRestrictions } from "@/lib/parcelSizes";
 import {
   findCouponByCode,
   formatAud,
@@ -58,15 +59,6 @@ function fail(code: CouponValidationErrorCode, message: string): CouponValidatio
   return { ok: false, code, message };
 }
 
-function parcelRestrictionMessage(min?: number, max?: number): string {
-  if (min !== undefined && max !== undefined) {
-    return `This coupon is only available for parcels between ${min}kg and ${max}kg.`;
-  }
-  if (min !== undefined) return `This coupon is only available for parcels of at least ${min}kg.`;
-  if (max !== undefined) return `This coupon is only available for parcels up to ${max}kg.`;
-  return "This coupon is not available for this parcel size.";
-}
-
 export function validateCouponForCart(
   code: string,
   coupons: Coupon[],
@@ -112,12 +104,11 @@ export function validateCouponForCart(
     return fail("restriction_route", "This coupon is not available for this route.");
   }
 
-  if (restrictions?.parcelSize) {
-    const { min, max } = getParcelWeightBounds(restrictions);
-    const weight = cart.parcelWeightKg;
-    if ((min !== undefined && weight < min) || (max !== undefined && weight > max)) {
-      return fail("restriction_parcel_size", parcelRestrictionMessage(min, max));
-    }
+  if (!parcelMatchesRestrictions(restrictions, cart.parcelWeightKg)) {
+    return fail(
+      "restriction_parcel_size",
+      `This coupon is only available for ${formatParcelSizeRestriction(coupon).toLowerCase()}.`,
+    );
   }
 
   if (restrictions?.customerType && restrictions.customerType !== cart.customerType) {

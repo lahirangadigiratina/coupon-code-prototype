@@ -456,7 +456,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
     usageLimit: 150,
     status: "active",
     createdDate: "2026-06-03",
-    restrictions: { parcelSize: "custom", minWeightKg: 1, maxWeightKg: 10 },
+    restrictions: { parcelSizes: ["custom"], minWeightKg: 1, maxWeightKg: 10 },
     logs: [
       {
         id: "log_size_1",

@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router-dom";
-import { Package } from "lucide-react";
+import { BrandLogo } from "./BrandLogo";
 
 export function CustomerLayout() {
   return (
@@ -7,9 +7,7 @@ export function CustomerLayout() {
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-content items-center justify-between gap-6 px-6">
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Package className="h-5 w-5" />
-            </div>
+            <BrandLogo />
             <div className="min-w-0 leading-tight">
               <p className="truncate text-sm font-semibold">Shipment booking</p>
               <p className="text-[11px] text-muted-foreground">Review and confirm</p>

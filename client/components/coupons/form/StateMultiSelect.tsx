@@ -18,11 +18,25 @@ interface StateMultiSelectProps {
   onChange: (states: AustralianState[]) => void;
 }
 
+function CheckboxMark({ selected }: { selected: boolean }) {
+  return (
+    <span
+      className={cn(
+        "flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border",
+        selected ? "border-foreground bg-foreground text-background" : "border-input bg-background",
+      )}
+      aria-hidden
+    >
+      {selected ? <Check className="h-3 w-3" /> : null}
+    </span>
+  );
+}
+
 export function StateMultiSelect({ id, value, onChange }: StateMultiSelectProps) {
-  const summary =
-    value.length === 0
-      ? "Select states"
-      : value.map((state) => AUSTRALIAN_STATE_LABELS[state]).join(", ");
+  const allStates = value.length === 0;
+  const summary = allStates
+    ? "All states"
+    : value.map((state) => AUSTRALIAN_STATE_LABELS[state]).join(", ");
 
   const toggle = (state: AustralianState, checked: boolean) => {
     if (checked) {
@@ -41,14 +55,7 @@ export function StateMultiSelect({ id, value, onChange }: StateMultiSelectProps)
           type="button"
           className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
-          <span
-            className={cn(
-              "line-clamp-1 flex-1 text-left",
-              value.length === 0 && "text-muted-foreground",
-            )}
-          >
-            {summary}
-          </span>
+          <span className="line-clamp-1 flex-1 text-left">{summary}</span>
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
         </button>
       </DropdownMenuTrigger>
@@ -56,6 +63,16 @@ export function StateMultiSelect({ id, value, onChange }: StateMultiSelectProps)
         align="start"
         className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[var(--radix-dropdown-menu-trigger-width)]"
       >
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault();
+            onChange([]);
+          }}
+          className="gap-2.5"
+        >
+          <CheckboxMark selected={allStates} />
+          All states
+        </DropdownMenuItem>
         {AUSTRALIAN_STATES.map((state) => {
           const selected = value.includes(state);
           return (
@@ -67,17 +84,7 @@ export function StateMultiSelect({ id, value, onChange }: StateMultiSelectProps)
               }}
               className="gap-2.5"
             >
-              <span
-                className={cn(
-                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border",
-                  selected
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-input bg-background",
-                )}
-                aria-hidden
-              >
-                {selected ? <Check className="h-3 w-3" /> : null}
-              </span>
+              <CheckboxMark selected={selected} />
               {AUSTRALIAN_STATE_LABELS[state]}
             </DropdownMenuItem>
           );

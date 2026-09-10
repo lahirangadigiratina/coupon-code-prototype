@@ -9,7 +9,7 @@ import {
   hasCouponFormErrors,
   validateCouponForm,
 } from "@/lib/couponForm";
-import { composeCouponCode } from "@/lib/couponCode";
+import { generateUniqueCouponCode, getCouponCodeSuffix } from "@/lib/couponCode";
 import type { Coupon, CouponType } from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues, VolumeTierInput } from "@/types/couponForm";
 import { CouponDetailsFields } from "./CouponDetailsFields";
@@ -39,9 +39,13 @@ export function CouponForm({
   onSubmit,
   onCancel,
 }: CouponFormProps) {
-  const [values, setValues] = useState<CouponFormValues>(
-    () => initialValues ?? createDefaultCouponFormValues(),
-  );
+  const [values, setValues] = useState<CouponFormValues>(() => {
+    const defaults = initialValues ?? createDefaultCouponFormValues();
+    if (mode === "create" && !getCouponCodeSuffix(defaults.code, defaults.type)) {
+      return { ...defaults, code: generateUniqueCouponCode(defaults.type, existingCodes) };
+    }
+    return defaults;
+  });
   const [errors, setErrors] = useState<CouponFormErrors>({});
 
   const updateValues = (patch: Partial<CouponFormValues>) => {
@@ -60,13 +64,14 @@ export function CouponForm({
     });
   };
 
-  const handleCodeChange = (value: string) => {
-    if (mode === "edit") return;
-    updateValues({ code: composeCouponCode(value, values.type) });
-  };
-
   const handleTypeChange = (type: CouponType) => {
-    setValues((prev) => applyCouponTypeChange(prev, type, { lockCode: mode === "edit" }));
+    setValues((prev) => {
+      const next = applyCouponTypeChange(prev, type, { lockCode: mode === "edit" });
+      if (mode === "edit") return next;
+      const taken = existingCodes.some((code) => code.toUpperCase() === next.code.toUpperCase());
+      if (!taken) return next;
+      return { ...next, code: generateUniqueCouponCode(type, existingCodes) };
+    });
     setErrors((prev) => {
       const next = { ...prev };
       delete next.type;
@@ -102,6 +107,7 @@ export function CouponForm({
       currentCode,
       lockCode: mode === "edit",
       minUsageLimit: existingCoupon?.usageCount,
+      minAmountUsed: existingCoupon?.amountUsed,
     });
     setErrors(nextErrors);
     if (hasCouponFormErrors(nextErrors)) {
@@ -123,10 +129,8 @@ export function CouponForm({
         <CouponDetailsFields
           values={values}
           errors={errors}
-          codeLocked={mode === "edit"}
-          onCodeChange={handleCodeChange}
+          codeLocked
           onTypeChange={handleTypeChange}
-          onCustomerNameChange={(customerName) => updateValues({ customerName })}
           onChange={updateValues}
         />
         <DiscountFields
@@ -151,6 +155,7 @@ export function CouponForm({
           errors={errors}
           onChange={updateValues}
           usageCount={existingCoupon?.usageCount}
+          amountUsed={existingCoupon?.amountUsed}
         />
       </FormSection>
 

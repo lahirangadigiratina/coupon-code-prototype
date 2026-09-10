@@ -9,16 +9,29 @@ interface FormFieldProps {
   hint?: string;
   error?: string;
   className?: string;
+  labelAddon?: ReactNode;
   children: ReactNode;
 }
 
-export function FormField({ id, label, required, hint, error, className, children }: FormFieldProps) {
+export function FormField({
+  id,
+  label,
+  required,
+  hint,
+  error,
+  className,
+  labelAddon,
+  children,
+}: FormFieldProps) {
   return (
     <div className={cn("space-y-1.5", className)}>
       {label ? (
-        <Label htmlFor={id}>
-          {label}
-          {required && <span className="text-destructive"> *</span>}
+        <Label htmlFor={id} className="inline-flex items-center gap-1.5">
+          <span>
+            {label}
+            {required && <span className="text-destructive"> *</span>}
+          </span>
+          {labelAddon}
         </Label>
       ) : null}
       {children}

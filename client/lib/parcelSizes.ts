@@ -3,6 +3,7 @@ import {
   type CouponRestrictions,
   type ParcelSizeRestriction,
   type PredefinedParcelSize,
+  type SelectableParcelSize,
 } from "@/types/coupon";
 
 export const PREDEFINED_PARCEL_SIZES = [
@@ -45,25 +46,41 @@ export function formatParcelSizeWeight(maxWeightKg: number): string {
   return `Up to ${maxWeightKg} kg`;
 }
 
-export function getParcelWeightBounds(restrictions?: CouponRestrictions): {
-  min?: number;
-  max?: number;
-} {
-  const size = restrictions?.parcelSize;
-  if (!size) return {};
+export function getRestrictedParcelSizes(restrictions?: CouponRestrictions): SelectableParcelSize[] {
+  return restrictions?.parcelSizes ?? [];
+}
 
+export function parcelMatchesRestrictions(
+  restrictions: CouponRestrictions | undefined,
+  weightKg: number,
+): boolean {
+  const sizes = getRestrictedParcelSizes(restrictions);
+  if (sizes.length === 0) return true;
+
+  return sizes.some((size) => parcelSizeAllowsWeight(size, restrictions, weightKg));
+}
+
+function parcelSizeAllowsWeight(
+  size: SelectableParcelSize,
+  restrictions: CouponRestrictions | undefined,
+  weightKg: number,
+): boolean {
   if (size === "custom") {
-    return {
-      min: restrictions.minWeightKg,
-      max: restrictions.maxWeightKg,
-    };
+    const min = restrictions?.minWeightKg;
+    const max = restrictions?.maxWeightKg;
+    if (min !== undefined && weightKg < min) return false;
+    if (max !== undefined && weightKg > max) return false;
+    return true;
   }
 
-  if (isPredefinedParcelSize(size)) {
-    return {
-      max: restrictions.maxWeightKg ?? PREDEFINED_PARCEL_SIZE_DETAILS[size].maxWeightKg,
-    };
-  }
+  return weightKg <= PREDEFINED_PARCEL_SIZE_DETAILS[size].maxWeightKg;
+}
 
-  return {};
+export function formatCustomParcelWeightRange(restrictions?: CouponRestrictions): string | null {
+  const min = restrictions?.minWeightKg;
+  const max = restrictions?.maxWeightKg;
+  if (min !== undefined && max !== undefined) return `${min}–${max} kg`;
+  if (min !== undefined) return `Min ${min} kg`;
+  if (max !== undefined) return `Max ${max} kg`;
+  return null;
 }

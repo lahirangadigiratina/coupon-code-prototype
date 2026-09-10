@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
+import { CurrencyInput } from "./CurrencyInput";
 import { DateRangeInput } from "./DateInput";
 import { FormField, fieldInputClass } from "./FormField";
 
@@ -21,6 +22,7 @@ interface UsageValidityFieldsProps {
   errors: CouponFormErrors;
   onChange: (patch: Partial<CouponFormValues>) => void;
   usageCount?: number;
+  amountUsed?: number;
 }
 
 export function UsageValidityFields({
@@ -28,6 +30,7 @@ export function UsageValidityFields({
   errors,
   onChange,
   usageCount,
+  amountUsed,
 }: UsageValidityFieldsProps) {
   const isFixedAmount = values.type === "fixed_amount_off";
   const showCustomLimit = !isFixedAmount || values.usageLimitMode === "custom";
@@ -121,6 +124,25 @@ export function UsageValidityFields({
             className={fieldInputClass(errors.usageLimit)}
           />
         )}
+      </FormField>
+
+      <FormField
+        id="amount-limit"
+        label="Amount limit"
+        hint={
+          amountUsed
+            ? `Discount already given: AUD $${amountUsed}. The coupon becomes unavailable when this amount is exhausted.`
+            : "Leave blank for no cap. The coupon becomes unavailable when this discount amount is exhausted."
+        }
+        error={errors.amountLimit}
+      >
+        <CurrencyInput
+          id="amount-limit"
+          value={values.amountLimit}
+          onChange={(amountLimit) => onChange({ amountLimit })}
+          placeholder="2000"
+          error={errors.amountLimit}
+        />
       </FormField>
     </div>
   );

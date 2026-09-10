@@ -1,21 +1,9 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  PARCEL_SIZE_OPTION_LABELS,
-  PARCEL_SIZE_RESTRICTIONS,
-  type ParcelSizeRestriction,
-} from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
-import { formatParcelSizeWeight, getPredefinedParcelSize } from "@/lib/parcelSizes";
 import { CurrencyInput } from "./CurrencyInput";
 import { FormField, fieldInputClass } from "./FormField";
+import { ParcelSizeMultiSelect } from "./ParcelSizeMultiSelect";
 import { StateMultiSelect } from "./StateMultiSelect";
 
 interface RestrictionsFieldsProps {
@@ -25,14 +13,12 @@ interface RestrictionsFieldsProps {
 }
 
 export function RestrictionsFields({ values, errors, onChange }: RestrictionsFieldsProps) {
-  const selectedParcelSize = getPredefinedParcelSize(values.parcelSize);
-
   return (
     <div className="grid gap-5 md:grid-cols-2">
       <FormField
         id="states"
         label="States"
-        hint="Leave empty to make this coupon available in all states."
+        hint="All states makes this coupon available nationwide."
       >
         <StateMultiSelect
           id="states"
@@ -41,40 +27,40 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
         />
       </FormField>
 
-      <FormField id="parcel-size" label="Parcel size">
-        <Select
-          value={values.parcelSize}
-          onValueChange={(value) =>
-            onChange({
-              parcelSize: value as ParcelSizeRestriction,
-              minWeightKg: "",
-              maxWeightKg: "",
-            })
-          }
-        >
-          <SelectTrigger id="parcel-size">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PARCEL_SIZE_RESTRICTIONS.map((size) => (
-              <SelectItem key={size} value={size}>
-                {PARCEL_SIZE_OPTION_LABELS[size]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {selectedParcelSize && (
-          <div className="rounded-lg border bg-neutral-50 px-3 py-2">
-            <p className="text-sm font-medium">{selectedParcelSize.label}</p>
-            <p className="mt-0.5 text-caption-sm text-muted-foreground">
-              {formatParcelSizeWeight(selectedParcelSize.maxWeightKg)}
-            </p>
-            <p className="text-caption-sm text-muted-foreground">{selectedParcelSize.description}</p>
-          </div>
-        )}
+      <FormField
+        id="customer-phone"
+        label="Phone number"
+        hint="Leave blank for all eligible customers."
+      >
+        <Input
+          id="customer-phone"
+          type="tel"
+          inputMode="tel"
+          value={values.customerPhone}
+          onChange={(event) => onChange({ customerPhone: event.target.value })}
+          placeholder="Enter phone number"
+          autoComplete="off"
+        />
       </FormField>
 
-      {values.parcelSize === "custom" && (
+      <FormField
+        id="parcel-size"
+        label="Parcel size"
+        hint="Leave empty to make this coupon available for any parcel size."
+      >
+        <ParcelSizeMultiSelect
+          id="parcel-size"
+          value={values.parcelSizes}
+          onChange={(parcelSizes) =>
+            onChange({
+              parcelSizes,
+              ...(parcelSizes.includes("custom") ? {} : { minWeightKg: "", maxWeightKg: "" }),
+            })
+          }
+        />
+      </FormField>
+
+      {values.parcelSizes.includes("custom") && (
         <>
           <FormField
             id="min-weight"

@@ -7,7 +7,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { getCouponCodeSuffix, getCouponPrefix } from "@/lib/couponCode";
 import { isCouponExpired } from "@/lib/couponDisplay";
 import {
   COUPON_TYPE_LABELS,
@@ -18,6 +17,7 @@ import {
   type DiscountBasis,
 } from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
+import { CouponCodeInfoTooltip } from "./CouponCodeInfoTooltip";
 import { CurrencyInput } from "./CurrencyInput";
 import { FormField, fieldInputClass } from "./FormField";
 
@@ -25,9 +25,7 @@ interface CouponDetailsFieldsProps {
   values: CouponFormValues;
   errors: CouponFormErrors;
   codeLocked?: boolean;
-  onCodeChange: (value: string) => void;
   onTypeChange: (type: CouponType) => void;
-  onCustomerNameChange: (value: string) => void;
   onChange: (patch: Partial<CouponFormValues>) => void;
 }
 
@@ -35,13 +33,9 @@ export function CouponDetailsFields({
   values,
   errors,
   codeLocked,
-  onCodeChange,
   onTypeChange,
-  onCustomerNameChange,
   onChange,
 }: CouponDetailsFieldsProps) {
-  const prefix = getCouponPrefix(values.type);
-
   return (
     <div className="space-y-5">
       <div className="grid gap-5 md:grid-cols-2">
@@ -106,15 +100,26 @@ export function CouponDetailsFields({
         )}
 
         {values.type === "volume_discount" && (
-          <CouponCodeField
-            values={values}
-            errors={errors}
-            codeLocked={codeLocked}
-            prefix={prefix}
-            onCodeChange={onCodeChange}
-          />
+          <AliasField value={values.alias} onChange={(alias) => onChange({ alias })} />
         )}
       </div>
+
+      {values.type !== "volume_discount" && (
+        <div className="grid gap-5 md:grid-cols-2">
+          <CouponCodeField values={values} errors={errors} />
+          <AliasField value={values.alias} onChange={(alias) => onChange({ alias })} />
+        </div>
+      )}
+
+      {values.type === "volume_discount" && (
+        <div className="grid gap-5 md:grid-cols-2">
+          <DiscountBasisField
+            value={values.discountBasis}
+            onChange={(discountBasis) => onChange({ discountBasis })}
+          />
+          <CouponCodeField values={values} errors={errors} />
+        </div>
+      )}
 
       {values.type !== "volume_discount" && (
         <div className="grid gap-5 md:grid-cols-2">
@@ -122,27 +127,6 @@ export function CouponDetailsFields({
             value={values.discountBasis}
             onChange={(discountBasis) => onChange({ discountBasis })}
           />
-          <CouponCodeField
-            values={values}
-            errors={errors}
-            codeLocked={codeLocked}
-            prefix={prefix}
-            onCodeChange={onCodeChange}
-          />
-        </div>
-      )}
-
-      {values.type === "volume_discount" ? (
-        <div className="grid gap-5 md:grid-cols-2">
-          <DiscountBasisField
-            value={values.discountBasis}
-            onChange={(discountBasis) => onChange({ discountBasis })}
-          />
-          <CustomerNameField value={values.customerName} onChange={onCustomerNameChange} />
-        </div>
-      ) : (
-        <div className="grid gap-5 md:grid-cols-2">
-          <CustomerNameField value={values.customerName} onChange={onCustomerNameChange} />
         </div>
       )}
 
@@ -164,7 +148,12 @@ function DiscountBasisField({
   onChange: (value: DiscountBasis) => void;
 }) {
   return (
-    <FormField id="discount-basis" label="Discount basis" required>
+    <FormField
+      id="discount-basis"
+      label="Discount basis"
+      required
+      hint="Choose what the discount is calculated on."
+    >
       <Select value={value} onValueChange={(next) => onChange(next as DiscountBasis)}>
         <SelectTrigger id="discount-basis">
           <SelectValue />
@@ -184,15 +173,9 @@ function DiscountBasisField({
 function CouponCodeField({
   values,
   errors,
-  codeLocked,
-  prefix,
-  onCodeChange,
 }: {
   values: CouponFormValues;
   errors: CouponFormErrors;
-  codeLocked?: boolean;
-  prefix: string;
-  onCodeChange: (value: string) => void;
 }) {
   return (
     <FormField
@@ -201,48 +184,23 @@ function CouponCodeField({
       required
       error={errors.code}
       className="w-full"
-      hint={
-        codeLocked
-          ? "Coupon codes cannot be changed after creation."
-          : "4–8 characters. Use uppercase letters and numbers only."
-      }
+      hint="Generated automatically. Coupon codes cannot be changed after creation."
+      labelAddon={<CouponCodeInfoTooltip />}
     >
-      {codeLocked ? (
-        <Input
-          id="coupon-code"
-          value={values.code}
-          readOnly
-          autoComplete="off"
-          spellCheck={false}
-          className="cursor-not-allowed bg-muted font-medium tracking-wide uppercase"
-        />
-      ) : (
-        <div
-          className={cn(
-            "flex h-10 w-full overflow-hidden rounded-md border border-input bg-background",
-            errors.code && "border-destructive",
-          )}
-        >
-          <span className="inline-flex shrink-0 items-center border-r bg-muted px-3 text-sm font-medium tracking-wide text-foreground">
-            {prefix}-
-          </span>
-          <Input
-            id="coupon-code"
-            value={getCouponCodeSuffix(values.code, values.type)}
-            onChange={(event) => onCodeChange(event.target.value)}
-            placeholder="Type coupon code"
-            autoComplete="off"
-            spellCheck={false}
-            aria-invalid={Boolean(errors.code)}
-            className="h-full rounded-none border-0 font-medium tracking-wide uppercase shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
-        </div>
-      )}
+      <Input
+        id="coupon-code"
+        value={values.code}
+        readOnly
+        autoComplete="off"
+        spellCheck={false}
+        aria-invalid={Boolean(errors.code)}
+        className="cursor-not-allowed bg-muted font-medium tracking-wide uppercase"
+      />
     </FormField>
   );
 }
 
-function CustomerNameField({
+function AliasField({
   value,
   onChange,
 }: {
@@ -251,15 +209,15 @@ function CustomerNameField({
 }) {
   return (
     <FormField
-      id="customer-name"
-      label="Customer name"
-      hint="Enter a first name, last name, or phone number. Leave blank for all eligible customers."
+      id="coupon-alias"
+      label="Alias"
+      hint="Optional internal name. Leave blank if not needed."
     >
       <Input
-        id="customer-name"
+        id="coupon-alias"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="First name, last name or phone number"
+        placeholder="Enter alias"
         autoComplete="off"
       />
     </FormField>

@@ -108,6 +108,16 @@ export const PARCEL_SIZE_RESTRICTIONS = [
   "custom",
 ] as const;
 export type ParcelSizeRestriction = (typeof PARCEL_SIZE_RESTRICTIONS)[number];
+export const PARCEL_SIZE_SELECTABLE = [
+  "pouch",
+  "satchel",
+  "shoebox",
+  "carry_on",
+  "large_box",
+  "suitcase",
+  "custom",
+] as const;
+export type SelectableParcelSize = (typeof PARCEL_SIZE_SELECTABLE)[number];
 export type PredefinedParcelSize = Exclude<ParcelSizeRestriction, "any" | "custom">;
 
 export const CUSTOMER_TYPES = ["all", "new", "vip", "business"] as const;
@@ -178,7 +188,7 @@ export interface CouponRestrictions {
   deliverySpeed?: Exclude<DeliverySpeed, "any">;
   route?: Exclude<RouteRestriction, "all">;
   specificRegion?: string;
-  parcelSize?: Exclude<ParcelSizeRestriction, "any">;
+  parcelSizes?: SelectableParcelSize[];
   minWeightKg?: number;
   maxWeightKg?: number;
   customerType?: Exclude<CustomerType, "all">;
@@ -201,6 +211,7 @@ export interface Coupon {
   status: CouponStatus;
   createdDate: string;
   logs: CouponLog[];
-  customerName?: string | null;
+  alias?: string | null;
+  customerPhone?: string | null;
   restrictions?: CouponRestrictions;
 }
