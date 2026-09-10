@@ -211,7 +211,7 @@ function AliasField({
     <FormField
       id="coupon-alias"
       label="Alias"
-      hint="Optional internal name. Leave blank if not needed."
+      hint="Optional name to help identify this code. Leave blank if not needed."
     >
       <Input
         id="coupon-alias"
