@@ -46,7 +46,7 @@ export function EditCouponCodePage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="sticky top-16 z-30 -mx-6 border-b bg-neutral-50 px-6 pb-4 pt-2">
         <Link
           to={detailsPath}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"

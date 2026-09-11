@@ -3,7 +3,6 @@ import type { BookingCart } from "@/types/booking";
 
 export function getCouponDiscountBase(coupon: Coupon, cart: BookingCart): number {
   const basis = coupon.discountBasis ?? "total_value";
-  if (basis === "delivery_fee") return cart.deliveryFee;
   if (basis === "before_tax") return Math.max(0, cart.subtotal - cart.taxAmount);
   return cart.subtotal;
 }

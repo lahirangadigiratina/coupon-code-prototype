@@ -22,6 +22,7 @@ interface CouponDetailsFieldsProps {
   values: CouponFormValues;
   errors: CouponFormErrors;
   codeLocked?: boolean;
+  showCodeAndAlias?: boolean;
   onTypeChange: (type: CouponType) => void;
   onChange: (patch: Partial<CouponFormValues>) => void;
 }
@@ -30,6 +31,7 @@ export function CouponDetailsFields({
   values,
   errors,
   codeLocked,
+  showCodeAndAlias = true,
   onTypeChange,
   onChange,
 }: CouponDetailsFieldsProps) {
@@ -95,22 +97,12 @@ export function CouponDetailsFields({
             />
           </FormField>
         )}
-
-        {values.type === "volume_discount" && (
-          <AliasField value={values.alias} onChange={(alias) => onChange({ alias })} />
-        )}
       </div>
 
-      {values.type !== "volume_discount" && (
+      {showCodeAndAlias && (
         <div className="grid gap-5 md:grid-cols-2">
           <CouponCodeField values={values} errors={errors} />
           <AliasField value={values.alias} onChange={(alias) => onChange({ alias })} />
-        </div>
-      )}
-
-      {values.type === "volume_discount" && (
-        <div className="grid gap-5 md:grid-cols-2">
-          <CouponCodeField values={values} errors={errors} />
         </div>
       )}
 
@@ -138,7 +130,7 @@ function CouponCodeField({
       required
       error={errors.code}
       className="w-full"
-      hint="Generated automatically. Coupon codes cannot be changed after creation."
+      hint="Generated when you create this coupon. Coupon codes cannot be changed after creation."
       labelAddon={<CouponCodeInfoTooltip />}
     >
       <Input

@@ -75,9 +75,14 @@ export function hasCouponFormErrors(errors: CouponFormErrors): boolean {
   return Object.entries(errors).some(([key, value]) => key !== "volumeTiers" && Boolean(value));
 }
 
-export function areMandatoryCouponFieldsFilled(values: CouponFormValues): boolean {
+export function areMandatoryCouponFieldsFilled(
+  values: CouponFormValues,
+  options: { requireCode?: boolean } = {},
+): boolean {
   if (!values.type) return false;
-  if (!getCouponCodeSuffix(values.code, values.type).trim()) return false;
+  if (options.requireCode !== false && !getCouponCodeSuffix(values.code, values.type).trim()) {
+    return false;
+  }
 
   if (values.type === "percentage_off" && !values.percentageValue.trim()) return false;
   if (values.type === "fixed_amount_off" && !values.fixedAmount.trim()) return false;

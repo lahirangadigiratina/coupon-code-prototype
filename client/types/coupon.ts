@@ -10,13 +10,12 @@ export const COUPON_TYPE_LABELS: Record<CouponType, string> = {
   volume_discount: "Volume discount",
 };
 
-export const DISCOUNT_BASES = ["before_tax", "total_value", "delivery_fee"] as const;
+export const DISCOUNT_BASES = ["before_tax", "total_value"] as const;
 export type DiscountBasis = (typeof DISCOUNT_BASES)[number];
 
 export const DISCOUNT_BASIS_LABELS: Record<DiscountBasis, string> = {
   before_tax: "Before tax",
   total_value: "After tax",
-  delivery_fee: "Delivery fee only",
 };
 
 export const COUPON_STATUS_LABELS: Record<CouponStatus, string> = {

@@ -40,14 +40,11 @@ export function CouponForm({
   onSubmit,
   onCancel,
 }: CouponFormProps) {
-  const [values, setValues] = useState<CouponFormValues>(() => {
-    const defaults = initialValues ?? createDefaultCouponFormValues();
-    if (mode === "create" && !getCouponCodeSuffix(defaults.code, defaults.type)) {
-      return { ...defaults, code: generateUniqueCouponCode(defaults.type, existingCodes) };
-    }
-    return defaults;
-  });
+  const [values, setValues] = useState<CouponFormValues>(
+    () => initialValues ?? createDefaultCouponFormValues(),
+  );
   const [errors, setErrors] = useState<CouponFormErrors>({});
+  const codeGenerated = Boolean(getCouponCodeSuffix(values.code, values.type));
 
   const updateValues = (patch: Partial<CouponFormValues>) => {
     setValues((prev) => ({ ...prev, ...patch }));
@@ -67,8 +64,10 @@ export function CouponForm({
 
   const handleTypeChange = (type: CouponType) => {
     setValues((prev) => {
-      const next = applyCouponTypeChange(prev, type, { lockCode: mode === "edit" });
-      if (mode === "edit") return next;
+      const next = applyCouponTypeChange(prev, type, {
+        lockCode: mode === "edit" || !getCouponCodeSuffix(prev.code, prev.type),
+      });
+      if (mode === "edit" || !getCouponCodeSuffix(next.code, type)) return next;
       const taken = existingCodes.some((code) => code.toUpperCase() === next.code.toUpperCase());
       if (!taken) return next;
       return { ...next, code: generateUniqueCouponCode(type, existingCodes) };
@@ -103,10 +102,11 @@ export function CouponForm({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const generatingCode = mode === "create" && !codeGenerated;
     const nextErrors = validateCouponForm(values, {
       existingCodes,
       currentCode,
-      lockCode: mode === "edit",
+      lockCode: mode === "edit" || generatingCode,
       minUsageLimit: existingCoupon?.usageCount,
       minAmountUsed: existingCoupon?.amountUsed,
     });
@@ -119,54 +119,68 @@ export function CouponForm({
       });
       return;
     }
+
+    if (generatingCode) {
+      const code = generateUniqueCouponCode(values.type, existingCodes);
+      setValues((prev) => ({ ...prev, code }));
+      window.requestAnimationFrame(() => {
+        document.getElementById("coupon-code")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      return;
+    }
+
     onSubmit(buildCouponFromForm(values, existingCoupon));
   };
 
-  const canCreate = mode === "edit" || areMandatoryCouponFieldsFilled(values);
+  const canCreate =
+    mode === "edit" || areMandatoryCouponFieldsFilled(values, { requireCode: codeGenerated });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-      <FormSection title="Type">
-        <CouponDetailsFields
-          values={values}
-          errors={errors}
-          codeLocked
-          onTypeChange={handleTypeChange}
-          onChange={updateValues}
-        />
-        <DiscountFields
-          values={values}
-          errors={errors}
-          onAddTier={handleAddTier}
-          onRemoveTier={handleRemoveTier}
-          onTierChange={handleTierChange}
-        />
-      </FormSection>
+      <div className="space-y-6">
+        <FormSection title="Type">
+          <CouponDetailsFields
+            values={values}
+            errors={errors}
+            codeLocked
+            showCodeAndAlias={mode === "edit" || codeGenerated}
+            onTypeChange={handleTypeChange}
+            onChange={updateValues}
+          />
+          <DiscountFields
+            values={values}
+            errors={errors}
+            onAddTier={handleAddTier}
+            onRemoveTier={handleRemoveTier}
+            onTierChange={handleTierChange}
+          />
+        </FormSection>
 
-      <FormSection title="Limit">
-        <RestrictionsFields values={values} errors={errors} onChange={updateValues} />
-      </FormSection>
+        <FormSection title="Limit">
+          <RestrictionsFields values={values} errors={errors} onChange={updateValues} />
+        </FormSection>
 
-      <FormSection title="Usage">
-        <UsageValidityFields
-          values={values}
-          errors={errors}
-          onChange={updateValues}
-          usageCount={existingCoupon?.usageCount}
-          amountUsed={existingCoupon?.amountUsed}
-        />
-      </FormSection>
+        <FormSection title="Usage">
+          <UsageValidityFields
+            values={values}
+            errors={errors}
+            onChange={updateValues}
+            usageCount={existingCoupon?.usageCount}
+            amountUsed={existingCoupon?.amountUsed}
+          />
+        </FormSection>
 
-      <FormSection title="Applicability">
-        <ApplicabilityFields values={values} onChange={updateValues} />
-      </FormSection>
+        <FormSection title="Applicability">
+          <ApplicabilityFields values={values} onChange={updateValues} />
+        </FormSection>
+      </div>
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+      <div className="sticky bottom-0 z-30 flex flex-col-reverse gap-3 border-t bg-neutral-50 py-4 sm:flex-row sm:items-center sm:justify-end">
         <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" className="w-full sm:w-auto" disabled={!canCreate}>
-          {submitLabel}
+          {mode === "create" && codeGenerated ? "Save coupon" : submitLabel}
         </Button>
       </div>
     </form>
