@@ -11,10 +11,7 @@ import { isCouponExpired } from "@/lib/couponDisplay";
 import {
   COUPON_TYPE_LABELS,
   COUPON_TYPES,
-  DISCOUNT_BASES,
-  DISCOUNT_BASIS_LABELS,
   type CouponType,
-  type DiscountBasis,
 } from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
 import { CouponCodeInfoTooltip } from "./CouponCodeInfoTooltip";
@@ -113,20 +110,7 @@ export function CouponDetailsFields({
 
       {values.type === "volume_discount" && (
         <div className="grid gap-5 md:grid-cols-2">
-          <DiscountBasisField
-            value={values.discountBasis}
-            onChange={(discountBasis) => onChange({ discountBasis })}
-          />
           <CouponCodeField values={values} errors={errors} />
-        </div>
-      )}
-
-      {values.type !== "volume_discount" && (
-        <div className="grid gap-5 md:grid-cols-2">
-          <DiscountBasisField
-            value={values.discountBasis}
-            onChange={(discountBasis) => onChange({ discountBasis })}
-          />
         </div>
       )}
 
@@ -137,36 +121,6 @@ export function CouponDetailsFields({
         </p>
       )}
     </div>
-  );
-}
-
-function DiscountBasisField({
-  value,
-  onChange,
-}: {
-  value: DiscountBasis;
-  onChange: (value: DiscountBasis) => void;
-}) {
-  return (
-    <FormField
-      id="discount-basis"
-      label="Discount basis"
-      required
-      hint="Choose what the discount is calculated on."
-    >
-      <Select value={value} onValueChange={(next) => onChange(next as DiscountBasis)}>
-        <SelectTrigger id="discount-basis">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {DISCOUNT_BASES.map((basis) => (
-            <SelectItem key={basis} value={basis}>
-              {DISCOUNT_BASIS_LABELS[basis]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </FormField>
   );
 }
 
@@ -210,14 +164,14 @@ function AliasField({
   return (
     <FormField
       id="coupon-alias"
-      label="Alias"
+      label="Coupon Code Alias"
       hint="Optional name to help identify this code. Leave blank if not needed."
     >
       <Input
         id="coupon-alias"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Enter alias"
+        placeholder="Enter Coupon Code Alias"
         autoComplete="off"
       />
     </FormField>

@@ -15,7 +15,7 @@ export type DiscountBasis = (typeof DISCOUNT_BASES)[number];
 
 export const DISCOUNT_BASIS_LABELS: Record<DiscountBasis, string> = {
   before_tax: "Before tax",
-  total_value: "Total value",
+  total_value: "After tax",
   delivery_fee: "Delivery fee only",
 };
 

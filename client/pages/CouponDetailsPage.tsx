@@ -131,7 +131,7 @@ export function CouponDetailsPage() {
             value={<span className="break-all tracking-wide">{coupon.code}</span>}
             hint="Coupon codes cannot be changed after creation."
           />
-          <DetailField label="Alias" value={coupon.alias?.trim() || "—"} />
+          <DetailField label="Coupon Code Alias" value={coupon.alias?.trim() || "—"} />
           <DetailField label="Coupon Type" value={formatCouponType(coupon.type)} />
           <DetailField
             label="Phone number"

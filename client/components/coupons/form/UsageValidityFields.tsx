@@ -61,21 +61,6 @@ export function UsageValidityFields({
   return (
     <div className="grid gap-5 md:grid-cols-2">
       <FormField
-        id="validity-dates"
-        label="Validity dates"
-        required
-        error={errors.startDate || errors.expiryDate}
-      >
-        <DateRangeInput
-          id="validity-dates"
-          startDate={values.startDate}
-          endDate={values.expiryDate}
-          onChange={({ startDate, endDate }) => onChange({ startDate, expiryDate: endDate })}
-          invalid={Boolean(errors.startDate || errors.expiryDate)}
-        />
-      </FormField>
-
-      <FormField
         id="usage-limit"
         label="Total usage limit"
         required
@@ -128,7 +113,7 @@ export function UsageValidityFields({
 
       <FormField
         id="amount-limit"
-        label="Amount limit"
+        label="Amount exhausted"
         hint={
           amountUsed
             ? `Discount already given: AUD $${amountUsed}. The coupon becomes unavailable when this amount is exhausted.`
@@ -142,6 +127,21 @@ export function UsageValidityFields({
           onChange={(amountLimit) => onChange({ amountLimit })}
           placeholder="2000"
           error={errors.amountLimit}
+        />
+      </FormField>
+
+      <FormField
+        id="validity-dates"
+        label="Validity dates"
+        required
+        error={errors.startDate || errors.expiryDate}
+      >
+        <DateRangeInput
+          id="validity-dates"
+          startDate={values.startDate}
+          endDate={values.expiryDate}
+          onChange={({ startDate, endDate }) => onChange({ startDate, expiryDate: endDate })}
+          invalid={Boolean(errors.startDate || errors.expiryDate)}
         />
       </FormField>
     </div>

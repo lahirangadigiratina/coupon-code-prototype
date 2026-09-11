@@ -16,34 +16,6 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
   return (
     <div className="grid gap-5 md:grid-cols-2">
       <FormField
-        id="states"
-        label="States"
-        hint="All states makes this coupon available nationwide."
-      >
-        <StateMultiSelect
-          id="states"
-          value={values.states}
-          onChange={(states) => onChange({ states })}
-        />
-      </FormField>
-
-      <FormField
-        id="customer-phone"
-        label="Phone number"
-        hint="Leave blank for all eligible customers."
-      >
-        <Input
-          id="customer-phone"
-          type="tel"
-          inputMode="tel"
-          value={values.customerPhone}
-          onChange={(event) => onChange({ customerPhone: event.target.value })}
-          placeholder="Enter phone number"
-          autoComplete="off"
-        />
-      </FormField>
-
-      <FormField
         id="parcel-size"
         label="Parcel size"
         hint="Leave empty to make this coupon available for any parcel size."
@@ -57,6 +29,20 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
               ...(parcelSizes.includes("custom") ? {} : { minWeightKg: "", maxWeightKg: "" }),
             })
           }
+        />
+      </FormField>
+
+      <FormField
+        id="minimum-order-value"
+        label="Minimum order value"
+        error={errors.minimumOrderValue}
+      >
+        <CurrencyInput
+          id="minimum-order-value"
+          value={values.minimumOrderValue}
+          onChange={(minimumOrderValue) => onChange({ minimumOrderValue })}
+          placeholder="50"
+          error={errors.minimumOrderValue}
         />
       </FormField>
 
@@ -106,16 +92,30 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
       )}
 
       <FormField
-        id="minimum-order-value"
-        label="Minimum order value"
-        error={errors.minimumOrderValue}
+        id="states"
+        label="States"
+        hint="All states makes this coupon available nationwide."
       >
-        <CurrencyInput
-          id="minimum-order-value"
-          value={values.minimumOrderValue}
-          onChange={(minimumOrderValue) => onChange({ minimumOrderValue })}
-          placeholder="50"
-          error={errors.minimumOrderValue}
+        <StateMultiSelect
+          id="states"
+          value={values.states}
+          onChange={(states) => onChange({ states })}
+        />
+      </FormField>
+
+      <FormField
+        id="customer-phone"
+        label="Phone number"
+        hint="Leave blank for all eligible customers."
+      >
+        <Input
+          id="customer-phone"
+          type="tel"
+          inputMode="tel"
+          value={values.customerPhone}
+          onChange={(event) => onChange({ customerPhone: event.target.value })}
+          placeholder="Enter phone number"
+          autoComplete="off"
         />
       </FormField>
     </div>

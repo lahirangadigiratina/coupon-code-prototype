@@ -12,6 +12,7 @@ import {
 import { generateUniqueCouponCode, getCouponCodeSuffix } from "@/lib/couponCode";
 import type { Coupon, CouponType } from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues, VolumeTierInput } from "@/types/couponForm";
+import { ApplicabilityFields } from "./ApplicabilityFields";
 import { CouponDetailsFields } from "./CouponDetailsFields";
 import { DiscountFields } from "./DiscountFields";
 import { FormSection } from "./FormSection";
@@ -125,7 +126,7 @@ export function CouponForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-      <FormSection title="Coupon details">
+      <FormSection title="Type">
         <CouponDetailsFields
           values={values}
           errors={errors}
@@ -142,14 +143,11 @@ export function CouponForm({
         />
       </FormSection>
 
-      <FormSection
-        title="Restrictions"
-        description="Optional limits for where this coupon can be used."
-      >
+      <FormSection title="Limit">
         <RestrictionsFields values={values} errors={errors} onChange={updateValues} />
       </FormSection>
 
-      <FormSection title="Usage & validity">
+      <FormSection title="Usage">
         <UsageValidityFields
           values={values}
           errors={errors}
@@ -157,6 +155,10 @@ export function CouponForm({
           usageCount={existingCoupon?.usageCount}
           amountUsed={existingCoupon?.amountUsed}
         />
+      </FormSection>
+
+      <FormSection title="Applicability">
+        <ApplicabilityFields values={values} onChange={updateValues} />
       </FormSection>
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
