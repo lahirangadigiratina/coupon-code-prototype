@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { composeCouponCode, getCouponCodeSuffix, getCouponPrefix } from "@/lib/couponCode";
+import { composeCouponCode, getCodePrefixLabel, getCouponCodeSuffix } from "@/lib/couponCode";
 import { cn } from "@/lib/utils";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
 import { CouponCodeInfoTooltip } from "./CouponCodeInfoTooltip";
@@ -18,7 +18,7 @@ export function CouponCodeFields({
   codeLocked,
   onChange,
 }: CouponCodeFieldsProps) {
-  const prefix = getCouponPrefix(values.type);
+  const prefix = getCodePrefixLabel(values.code);
   const suffix = getCouponCodeSuffix(values.code, values.type);
 
   return (
@@ -32,7 +32,7 @@ export function CouponCodeFields({
         hint={
           codeLocked
             ? "Coupon codes cannot be changed after creation."
-            : "The prefix is generated from the coupon type. Enter 4–8 characters for the rest of the code."
+            : "The prefix is generated from the coupon configurations. Enter 4–8 characters for the rest of the code."
         }
         labelAddon={<CouponCodeInfoTooltip />}
       >
@@ -44,7 +44,7 @@ export function CouponCodeFields({
           )}
         >
           <span className="flex shrink-0 items-center bg-muted px-3 font-medium tracking-wide text-muted-foreground">
-            {prefix}-
+            {prefix}
           </span>
           <input
             id="coupon-code"

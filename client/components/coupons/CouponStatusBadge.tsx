@@ -6,9 +6,13 @@ const statusStyles: Record<CouponStatus, { badge: string; dot: string }> = {
     badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
     dot: "bg-emerald-500",
   },
-  inactive: {
-    badge: "bg-neutral-100 text-neutral-600 border-neutral-200",
-    dot: "bg-neutral-400",
+  scheduled: {
+    badge: "bg-sky-50 text-sky-700 border-sky-200",
+    dot: "bg-sky-500",
+  },
+  exhausted: {
+    badge: "bg-amber-50 text-amber-800 border-amber-200",
+    dot: "bg-amber-500",
   },
   expired: {
     badge: "bg-red-50 text-red-700 border-red-200",

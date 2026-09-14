@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { isCouponExpired } from "@/lib/couponDisplay";
+import { isCouponExpired, isCouponNotYetValid } from "@/lib/couponDisplay";
 import {
   COUPON_TYPE_LABELS,
   COUPON_TYPES,
@@ -98,8 +98,13 @@ export function CouponDetailsFields({
 
       {codeLocked && isCouponExpired(values.expiryDate) && (
         <p className="text-body-sm text-muted-foreground">
-          This coupon is Expired because the end date has passed. It cannot be activated until the
-          end date is updated.
+          This coupon is Expired because the end date has passed. Update the end date to make it
+          available again.
+        </p>
+      )}
+      {codeLocked && !isCouponExpired(values.expiryDate) && isCouponNotYetValid(values.startDate) && (
+        <p className="text-body-sm text-muted-foreground">
+          This coupon is Scheduled because the start date is in the future.
         </p>
       )}
     </div>

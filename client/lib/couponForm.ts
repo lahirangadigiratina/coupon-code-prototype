@@ -4,7 +4,6 @@ import {
   syncCouponCodePrefix,
   validateCouponCode,
 } from "@/lib/couponCode";
-import { isCouponExpired } from "@/lib/couponDisplay";
 import { getRestrictedParcelSizes } from "@/lib/parcelSizes";
 import { parseDateOnly } from "@/lib/utils";
 import type { Coupon, CouponDiscount, CouponRestrictions, CouponType } from "@/types/coupon";
@@ -56,9 +55,10 @@ export function createDefaultCouponFormValues(): CouponFormValues {
     states: [],
     startDate: "",
     expiryDate: "",
-    usageLimit: "",
+    usageLimit: "1",
     usageLimitMode: "",
     amountLimit: "",
+    maxDiscountPerUser: "",
   };
 }
 
@@ -110,6 +110,8 @@ export function areMandatoryCouponFieldsFilled(
   } else if (!values.usageLimit.trim()) {
     return false;
   }
+
+  if (!values.maxDiscountPerUser.trim()) return false;
 
   return true;
 }
@@ -272,6 +274,15 @@ export function validateCouponForm(
     }
   }
 
+  if (!values.maxDiscountPerUser.trim()) {
+    errors.maxDiscountPerUser = "Maximum discount value per user is required.";
+  } else {
+    const maxDiscountPerUser = parseNumber(values.maxDiscountPerUser);
+    if (maxDiscountPerUser === null || maxDiscountPerUser <= 0) {
+      errors.maxDiscountPerUser = "Maximum discount value per user must be greater than 0.";
+    }
+  }
+
   return errors;
 }
 
@@ -353,6 +364,7 @@ function todayIsoDate() {
 
 export function buildCouponFromForm(values: CouponFormValues, existing?: Coupon): Coupon {
   const amountLimit = parseNumber(values.amountLimit);
+  const maxDiscountPerUser = parseNumber(values.maxDiscountPerUser);
   const editedLog = existing
     ? {
         id: `log_${crypto.randomUUID()}`,
@@ -376,12 +388,9 @@ export function buildCouponFromForm(values: CouponFormValues, existing?: Coupon)
     usageLimit: resolveUsageLimit(values),
     amountLimit: amountLimit && amountLimit > 0 ? amountLimit : null,
     amountUsed: existing?.amountUsed ?? 0,
+    maxDiscountPerUser: maxDiscountPerUser && maxDiscountPerUser > 0 ? maxDiscountPerUser : null,
     customerPhones: values.customerPhones.length > 0 ? values.customerPhones : undefined,
-    status: isCouponExpired(values.expiryDate)
-      ? "expired"
-      : existing?.status === "expired"
-        ? "active"
-        : (existing?.status ?? "active"),
+    status: "active",
     createdDate: existing?.createdDate ?? todayIsoDate(),
     logs: editedLog
       ? [editedLog, ...(existing?.logs ?? [])]
@@ -456,6 +465,7 @@ export function couponToFormValues(coupon: Coupon): CouponFormValues {
     usageLimit: coupon.usageLimit > 0 ? String(coupon.usageLimit) : "",
     usageLimitMode: usageLimitModeFromCoupon(coupon.usageLimit),
     amountLimit: coupon.amountLimit ? String(coupon.amountLimit) : "",
+    maxDiscountPerUser: coupon.maxDiscountPerUser ? String(coupon.maxDiscountPerUser) : "",
   };
 }
 
@@ -509,7 +519,7 @@ export function applyCouponTypeChange(
     discountBasis: values.discountBasis,
     code:
       options.lockCode || !values.code ? values.code : syncCouponCodePrefix(values.code, type),
-    usageLimit: leavingUnlimited ? "" : values.usageLimit,
+    usageLimit: leavingUnlimited ? "1" : values.usageLimit,
     usageLimitMode:
       type === "fixed_amount_off"
         ? values.usageLimit === "1"

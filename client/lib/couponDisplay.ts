@@ -21,8 +21,10 @@ export function formatCouponDateRange(coupon: Coupon): string {
 }
 
 export function getEffectiveCouponStatus(coupon: Coupon): CouponStatus {
-  if (isCouponExpired(coupon.expiryDate) || coupon.status === "expired") return "expired";
-  return coupon.status;
+  if (isCouponExpired(coupon.expiryDate)) return "expired";
+  if (isUsageLimitReached(coupon) || isAmountLimitReached(coupon)) return "exhausted";
+  if (isCouponNotYetValid(coupon.startDate)) return "scheduled";
+  return "active";
 }
 
 export function isUsageLimitReached(coupon: Coupon): boolean {
@@ -35,40 +37,19 @@ export function isAmountLimitReached(coupon: Coupon): boolean {
 
 export type CouponActivationBlock = "expired" | "usage_limit" | "amount_limit";
 
-export function getActivationBlock(coupon: Coupon): CouponActivationBlock | null {
-  if (isCouponExpired(coupon.expiryDate) || getEffectiveCouponStatus(coupon) === "expired") {
-    return "expired";
-  }
-  if (isUsageLimitReached(coupon)) return "usage_limit";
-  if (isAmountLimitReached(coupon)) return "amount_limit";
-  return null;
-}
-
-export function canActivateCoupon(coupon: Coupon): boolean {
-  return getEffectiveCouponStatus(coupon) === "inactive" && getActivationBlock(coupon) === null;
-}
-
-export function canDeactivateCoupon(coupon: Coupon): boolean {
-  return getEffectiveCouponStatus(coupon) === "active";
-}
-
 export function isCouponUnavailable(coupon: Coupon): boolean {
-  const status = getEffectiveCouponStatus(coupon);
-  return (
-    status === "expired" ||
-    status === "inactive" ||
-    isCouponNotYetValid(coupon.startDate) ||
-    isUsageLimitReached(coupon) ||
-    isAmountLimitReached(coupon)
-  );
+  return getEffectiveCouponStatus(coupon) !== "active";
 }
 
 export function getUnavailableLabel(coupon: Coupon): string | null {
-  if (getEffectiveCouponStatus(coupon) === "expired") return "This coupon has expired.";
-  if (isCouponNotYetValid(coupon.startDate)) return "This coupon is not valid yet.";
-  if (isUsageLimitReached(coupon)) return "Usage limit reached";
-  if (isAmountLimitReached(coupon)) return "Coupon discount limit reached.";
-  if (getEffectiveCouponStatus(coupon) === "inactive") return "This coupon is currently inactive.";
+  const status = getEffectiveCouponStatus(coupon);
+  if (status === "expired") return "This coupon has expired.";
+  if (status === "scheduled") return "This coupon is scheduled and is not valid yet.";
+  if (status === "exhausted") {
+    if (isUsageLimitReached(coupon)) return "Usage limit reached.";
+    if (isAmountLimitReached(coupon)) return "Coupon discount limit reached.";
+    return "This coupon is exhausted.";
+  }
   return null;
 }
 

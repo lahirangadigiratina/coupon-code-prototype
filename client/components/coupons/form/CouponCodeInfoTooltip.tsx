@@ -68,25 +68,17 @@ export function CouponCodeInfoTooltip() {
         >
           <p className="text-caption font-semibold text-foreground">Coupon code format</p>
           <p className="mt-1 font-medium tracking-wide text-caption-sm text-foreground">
-            [Type prefix]-[Suffix]
+            PLS-[Suffix]
           </p>
-          <ul className="mt-2 space-y-0.5 text-caption-sm text-muted-foreground">
-            <li>
-              <span className="font-medium tracking-wide text-foreground">PC</span> – Percentage off
-            </li>
-            <li>
-              <span className="font-medium tracking-wide text-foreground">FL</span> – Fixed amount off
-            </li>
-            <li>
-              <span className="font-medium tracking-wide text-foreground">VL</span> – Volume discount
-            </li>
-          </ul>
-          <p className="mt-2.5 text-caption font-semibold text-foreground">Examples</p>
+          <p className="mt-2 text-caption-sm text-muted-foreground">
+            The prefix is generated from the coupon configurations.
+          </p>
+          <p className="mt-2.5 text-caption font-semibold text-foreground">Example</p>
           <p className="mt-1 font-medium tracking-wide text-caption-sm text-foreground">
-            PC-WELC10 · FL-FLAT5 · VL-LOYAL
+            PLS-WELC10
           </p>
           <p className="mt-2.5 text-caption-sm text-muted-foreground">
-            The type prefix is generated automatically. You enter the rest of the code.
+            The prefix is generated automatically. You enter the rest of the code.
           </p>
         </div>
       ) : null}

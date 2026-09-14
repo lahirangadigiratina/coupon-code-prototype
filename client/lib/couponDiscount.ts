@@ -41,7 +41,7 @@ export function calculateCouponDiscount(
   if (subtotal <= 0) return { amount: 0, tier: null };
 
   if (coupon.discount.type === "fixed_amount_off") {
-    return { amount: Math.min(coupon.discount.amount, subtotal), tier: null };
+    return { amount: capDiscount(Math.min(coupon.discount.amount, subtotal), coupon, subtotal), tier: null };
   }
 
   if (coupon.discount.type === "volume_discount") {
@@ -60,7 +60,8 @@ function capDiscount(amount: number, coupon: Coupon, subtotal: number): number {
   const remaining = coupon.amountLimit
     ? Math.max(0, coupon.amountLimit - (coupon.amountUsed ?? 0))
     : amount;
-  return Math.min(amount, remaining, subtotal);
+  const perUserCap = coupon.maxDiscountPerUser ?? amount;
+  return Math.min(amount, remaining, perUserCap, subtotal);
 }
 
 export function formatCouponOffer(coupon: Coupon, tier?: VolumeDiscountTier | null): string {

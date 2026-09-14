@@ -1,10 +1,5 @@
-import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Pencil, Power, PowerOff } from "lucide-react";
-import {
-  CouponStatusConfirmDialog,
-  type CouponStatusDialogAction,
-} from "@/components/coupons/CouponStatusConfirmDialog";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { CouponStatusBadge } from "@/components/coupons/CouponStatusBadge";
 import { DetailField } from "@/components/coupons/details/DetailField";
 import { ParcelSizeDetailValue } from "@/components/coupons/details/ParcelSizeDetailValue";
@@ -12,8 +7,6 @@ import { FormSection } from "@/components/coupons/form/FormSection";
 import { Button } from "@/components/ui/button";
 import { useCoupons } from "@/context/CouponsContext";
 import {
-  canActivateCoupon,
-  canDeactivateCoupon,
   findCouponByCode,
   formatAud,
   formatAmountUsage,
@@ -46,7 +39,6 @@ export function CouponDetailsPage() {
   const { code } = useParams();
   const navigate = useNavigate();
   const { coupons } = useCoupons();
-  const [statusAction, setStatusAction] = useState<CouponStatusDialogAction | null>(null);
   const coupon = findCouponByCode(coupons, code);
 
   if (!coupon) {
@@ -107,22 +99,6 @@ export function CouponDetailsPage() {
           <Button variant="outline" onClick={() => navigate(couponLogsPath(coupon.code))}>
             View logs
           </Button>
-          {canDeactivateCoupon(coupon) && (
-            <Button
-              variant="outline"
-              className="gap-1.5 text-red-700 hover:bg-red-50 hover:text-red-700"
-              onClick={() => setStatusAction("deactivate")}
-            >
-              <PowerOff className="h-4 w-4" />
-              Deactivate
-            </Button>
-          )}
-          {canActivateCoupon(coupon) && (
-            <Button variant="outline" className="gap-1.5" onClick={() => setStatusAction("activate")}>
-              <Power className="h-4 w-4" />
-              Activate
-            </Button>
-          )}
         </div>
       </div>
 
@@ -259,6 +235,10 @@ export function CouponDetailsPage() {
             ) : (
               <DetailField label="Amount limit" value="No amount limit" />
             )}
+            <DetailField
+              label="Maximum discount value per user"
+              value={coupon.maxDiscountPerUser ? formatAud(coupon.maxDiscountPerUser) : "No per-user cap"}
+            />
           </dl>
         </div>
       </FormSection>
@@ -312,12 +292,6 @@ export function CouponDetailsPage() {
           </Button>
         </div>
       </FormSection>
-
-      <CouponStatusConfirmDialog
-        coupon={statusAction ? coupon : null}
-        action={statusAction}
-        onClose={() => setStatusAction(null)}
-      />
     </div>
   );
 }

@@ -122,7 +122,7 @@ export function DiscountFields({
       {preview && (
         <div className="rounded-lg border border-dashed bg-neutral-50 px-3 py-2 text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{preview}</span>
-          <span> applied to the total cart cost.</span>
+          <span> given per user.</span>
         </div>
       )}
     </div>

@@ -131,6 +131,22 @@ export function UsageValidityFields({
       </FormField>
 
       <FormField
+        id="max-discount-per-user"
+        label="Maximum discount value per user"
+        required
+        hint="A single user cannot receive more than this discount amount."
+        error={errors.maxDiscountPerUser}
+      >
+        <CurrencyInput
+          id="max-discount-per-user"
+          value={values.maxDiscountPerUser}
+          onChange={(maxDiscountPerUser) => onChange({ maxDiscountPerUser })}
+          placeholder="50"
+          error={errors.maxDiscountPerUser}
+        />
+      </FormField>
+
+      <FormField
         id="validity-dates"
         label="Validity dates"
         required

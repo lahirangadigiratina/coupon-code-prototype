@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { SAMPLE_CUSTOMER_PHONES } from "@/data/customerPhones";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,17 @@ function phonesMatch(left: string, right: string): boolean {
   return left.replace(/\s/g, "") === right.replace(/\s/g, "");
 }
 
+function matchesSearch(name: string, phone: string, query: string): boolean {
+  const term = query.trim().toLowerCase();
+  if (!term) return true;
+  const compactTerm = term.replace(/\s/g, "");
+  return (
+    name.toLowerCase().includes(term) ||
+    phone.toLowerCase().includes(term) ||
+    phone.replace(/\s/g, "").includes(compactTerm)
+  );
+}
+
 export function ChoosePhoneNumberDialog({
   open,
   selectedPhones,
@@ -23,6 +35,7 @@ export function ChoosePhoneNumberDialog({
   onAdd,
 }: ChoosePhoneNumberDialogProps) {
   const [picked, setPicked] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
 
   const available = useMemo(
     () =>
@@ -30,6 +43,11 @@ export function ChoosePhoneNumberDialog({
         (customer) => !selectedPhones.some((phone) => phonesMatch(phone, customer.phone)),
       ),
     [selectedPhones],
+  );
+
+  const filtered = useMemo(
+    () => available.filter((customer) => matchesSearch(customer.name, customer.phone, query)),
+    [available, query],
   );
 
   const toggle = (phone: string) => {
@@ -42,6 +60,7 @@ export function ChoosePhoneNumberDialog({
 
   const handleClose = () => {
     setPicked([]);
+    setQuery("");
     onClose();
   };
 
@@ -49,8 +68,14 @@ export function ChoosePhoneNumberDialog({
     if (picked.length === 0) return;
     onAdd(picked);
     setPicked([]);
+    setQuery("");
     onClose();
   };
+
+  const emptyMessage =
+    available.length === 0
+      ? "All listed phone numbers are already added."
+      : "No matching phone numbers.";
 
   return (
     <Dialog open={open} onClose={handleClose} className="max-w-lg">
@@ -59,13 +84,22 @@ export function ChoosePhoneNumberDialog({
         Select customer phone numbers to restrict this coupon.
       </p>
 
-      <ul className="mt-4 divide-y rounded-lg border">
-        {available.length === 0 ? (
-          <li className="px-3 py-6 text-center text-body-sm text-muted-foreground">
-            All listed phone numbers are already added.
-          </li>
+      <div className="relative mt-4">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search by name or phone number"
+          autoComplete="off"
+          className="pl-9"
+        />
+      </div>
+
+      <ul className="mt-3 divide-y rounded-lg border">
+        {filtered.length === 0 ? (
+          <li className="px-3 py-6 text-center text-body-sm text-muted-foreground">{emptyMessage}</li>
         ) : (
-          available.map((customer) => {
+          filtered.map((customer) => {
             const checked = picked.some((phone) => phonesMatch(phone, customer.phone));
             return (
               <li key={customer.phone}>

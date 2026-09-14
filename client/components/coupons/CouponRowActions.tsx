@@ -1,6 +1,6 @@
-import { useState, type ElementType } from "react";
+import type { ElementType } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, FileText, MoreHorizontal, Pencil, Power, PowerOff } from "lucide-react";
+import { Eye, FileText, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,11 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  CouponStatusConfirmDialog,
-  type CouponStatusDialogAction,
-} from "@/components/coupons/CouponStatusConfirmDialog";
-import { canActivateCoupon, canDeactivateCoupon } from "@/lib/couponDisplay";
 import { couponDetailsPath, couponEditPath, couponLogsPath } from "@/lib/couponPaths";
 import { cn } from "@/lib/utils";
 import type { Coupon } from "@/types/coupon";
@@ -32,7 +27,6 @@ interface ActionItem {
 
 export function CouponRowActions({ coupon }: CouponRowActionsProps) {
   const navigate = useNavigate();
-  const [statusAction, setStatusAction] = useState<CouponStatusDialogAction | null>(null);
 
   const primaryActions: ActionItem[] = [
     {
@@ -48,23 +42,6 @@ export function CouponRowActions({ coupon }: CouponRowActionsProps) {
       onClick: () => navigate(couponEditPath(coupon.code)),
     },
   ];
-
-  const toggleAction: ActionItem | null = canDeactivateCoupon(coupon)
-    ? {
-        label: "Deactivate",
-        icon: PowerOff,
-        iconClassName: "bg-red-100 text-red-700",
-        onClick: () => setStatusAction("deactivate"),
-        destructive: true,
-      }
-    : canActivateCoupon(coupon)
-      ? {
-          label: "Activate",
-          icon: Power,
-          iconClassName: "bg-emerald-100 text-emerald-700",
-          onClick: () => setStatusAction("activate"),
-        }
-      : null;
 
   const secondaryActions: ActionItem[] = [
     {
@@ -114,22 +91,10 @@ export function CouponRowActions({ coupon }: CouponRowActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44 p-1">
           <div className="space-y-0.5">{primaryActions.map(renderAction)}</div>
-          {toggleAction && (
-            <>
-              <DropdownMenuSeparator className="my-1" />
-              {renderAction(toggleAction)}
-            </>
-          )}
           <DropdownMenuSeparator className="my-1" />
           <div className="space-y-0.5">{secondaryActions.map(renderAction)}</div>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <CouponStatusConfirmDialog
-        coupon={statusAction ? coupon : null}
-        action={statusAction}
-        onClose={() => setStatusAction(null)}
-      />
     </>
   );
 }

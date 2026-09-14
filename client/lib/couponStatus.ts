@@ -1,7 +1,7 @@
 import type { CouponActivationBlock } from "@/lib/couponDisplay";
 
 export type CouponStatusChangeResult =
-  | { ok: true; nextStatus: "active" | "inactive" }
+  | { ok: true; nextStatus: "active" | "exhausted" | "expired" | "scheduled" }
   | { ok: false; reason: CouponActivationBlock | "not_allowed" };
 
 export function getStatusChangeErrorMessage(

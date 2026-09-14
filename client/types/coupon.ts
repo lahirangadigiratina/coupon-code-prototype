@@ -1,7 +1,7 @@
 export const COUPON_TYPES = ["percentage_off", "fixed_amount_off", "volume_discount"] as const;
 export type CouponType = (typeof COUPON_TYPES)[number];
 
-export const COUPON_STATUSES = ["active", "inactive", "expired"] as const;
+export const COUPON_STATUSES = ["active", "exhausted", "expired", "scheduled"] as const;
 export type CouponStatus = (typeof COUPON_STATUSES)[number];
 
 export const COUPON_TYPE_LABELS: Record<CouponType, string> = {
@@ -20,8 +20,9 @@ export const DISCOUNT_BASIS_LABELS: Record<DiscountBasis, string> = {
 
 export const COUPON_STATUS_LABELS: Record<CouponStatus, string> = {
   active: "Active",
-  inactive: "Inactive",
+  exhausted: "Exhausted",
   expired: "Expired",
+  scheduled: "Scheduled",
 };
 
 export const COUPON_LOG_ACTIONS = [
@@ -207,6 +208,7 @@ export interface Coupon {
   usageLimit: number;
   amountLimit?: number | null;
   amountUsed?: number;
+  maxDiscountPerUser?: number | null;
   status: CouponStatus;
   createdDate: string;
   logs: CouponLog[];

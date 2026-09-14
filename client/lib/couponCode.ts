@@ -1,17 +1,19 @@
-import { COUPON_TYPE_LABELS, type CouponType } from "@/types/coupon";
+import type { CouponType } from "@/types/coupon";
 
-export const COUPON_PREFIX: Record<CouponType, "PC" | "FL" | "VL"> = {
-  percentage_off: "PC",
-  fixed_amount_off: "FL",
-  volume_discount: "VL",
-};
+export const COUPON_PREFIX = "PLS" as const;
 
-const PREFIX_PATTERN = /^(PC|FL|VL)-?/;
-const CODE_PATTERN = /^(PC|FL|VL)-([A-HJKMNP-Z2-9]{4,8})$/;
+const LEGACY_PREFIX_PATTERN = /^(PLS|PC|FL|VL)-?/;
+const CODE_PATTERN = /^PLS-([A-HJKMNP-Z2-9]{4,8})$/;
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
-export function getCouponPrefix(type: CouponType): "PC" | "FL" | "VL" {
-  return COUPON_PREFIX[type];
+export function getCouponPrefix(_type?: CouponType): typeof COUPON_PREFIX {
+  return COUPON_PREFIX;
+}
+
+export function getCodePrefixLabel(code: string): string {
+  const normalized = normalizeCouponCodeInput(code);
+  const match = /^(PLS|PC|FL|VL)(?=-|$)/.exec(normalized);
+  return match?.[1] ?? COUPON_PREFIX;
 }
 
 export function normalizeCouponCodeInput(raw: string): string {
@@ -22,17 +24,15 @@ export function normalizeCouponCodeSuffix(raw: string): string {
   return raw.toUpperCase().replace(/[^A-HJKMNP-Z2-9]/g, "").slice(0, 8);
 }
 
-export function getCouponCodeSuffix(code: string, type: CouponType): string {
-  const prefix = `${getCouponPrefix(type)}-`;
+export function getCouponCodeSuffix(code: string, _type?: CouponType): string {
   const normalized = normalizeCouponCodeInput(code);
-  if (normalized.startsWith(prefix)) return normalized.slice(prefix.length);
-  return normalized.replace(PREFIX_PATTERN, "").replace(/^-/, "");
+  return normalized.replace(LEGACY_PREFIX_PATTERN, "").replace(/^-/, "");
 }
 
-export function composeCouponCode(suffix: string, type: CouponType): string {
+export function composeCouponCode(suffix: string, _type?: CouponType): string {
   const cleanSuffix = normalizeCouponCodeSuffix(suffix);
-  if (!cleanSuffix) return `${getCouponPrefix(type)}-`;
-  return `${getCouponPrefix(type)}-${cleanSuffix}`;
+  if (!cleanSuffix) return `${COUPON_PREFIX}-`;
+  return `${COUPON_PREFIX}-${cleanSuffix}`;
 }
 
 export function generateCouponCodeSuffix(length = 6): string {
@@ -44,48 +44,41 @@ export function generateCouponCodeSuffix(length = 6): string {
   return suffix;
 }
 
-export function generateUniqueCouponCode(type: CouponType, existingCodes: string[] = []): string {
+export function generateUniqueCouponCode(_type: CouponType, existingCodes: string[] = []): string {
   const taken = new Set(existingCodes.map((code) => code.toUpperCase()));
   for (let attempt = 0; attempt < 40; attempt += 1) {
-    const code = `${getCouponPrefix(type)}-${generateCouponCodeSuffix()}`;
+    const code = `${COUPON_PREFIX}-${generateCouponCodeSuffix()}`;
     if (!taken.has(code)) return code;
   }
-  return `${getCouponPrefix(type)}-${generateCouponCodeSuffix(8)}`;
+  return `${COUPON_PREFIX}-${generateCouponCodeSuffix(8)}`;
 }
 
-export function syncCouponCodePrefix(code: string, type: CouponType): string {
-  const prefix = getCouponPrefix(type);
+export function syncCouponCodePrefix(code: string, _type?: CouponType): string {
   const trimmed = normalizeCouponCodeInput(code).replace(/-+/g, "-");
   if (!trimmed) return "";
 
-  const suffix = trimmed.replace(PREFIX_PATTERN, "").replace(/^-/, "");
-  if (!suffix) return `${prefix}-`;
-  return `${prefix}-${suffix}`;
+  const suffix = trimmed.replace(LEGACY_PREFIX_PATTERN, "").replace(/^-/, "");
+  if (!suffix) return `${COUPON_PREFIX}-`;
+  return `${COUPON_PREFIX}-${suffix}`;
 }
 
-export function ensureCouponCodePrefix(code: string, type: CouponType): string {
+export function ensureCouponCodePrefix(code: string, type?: CouponType): string {
   const normalized = normalizeCouponCodeInput(code);
-  if (!normalized || normalized === `${getCouponPrefix(type)}-`) {
-    return `${getCouponPrefix(type)}-`;
+  if (!normalized || normalized === `${COUPON_PREFIX}-`) {
+    return `${COUPON_PREFIX}-`;
   }
   return syncCouponCodePrefix(normalized, type);
 }
 
-export function validateCouponCode(code: string, type: CouponType): string | null {
+export function validateCouponCode(code: string, _type?: CouponType): string | null {
   const normalized = normalizeCouponCodeInput(code).trim();
-  const prefix = getCouponPrefix(type);
 
-  if (!normalized || normalized === `${prefix}-`) {
+  if (!normalized || normalized === `${COUPON_PREFIX}-`) {
     return "Coupon code is required.";
   }
 
-  if (normalized.length < 8 || normalized.length > 11 || !CODE_PATTERN.test(normalized)) {
-    return "Use 8–11 characters with uppercase letters, numbers, and one hyphen.";
-  }
-
-  const match = CODE_PATTERN.exec(normalized);
-  if (!match || match[1] !== prefix) {
-    return `Use the ${prefix}- prefix for ${COUPON_TYPE_LABELS[type]}.`;
+  if (normalized.length < 8 || normalized.length > 12 || !CODE_PATTERN.test(normalized)) {
+    return "Use the PLS- prefix and 4–8 characters for the rest of the code.";
   }
 
   return null;

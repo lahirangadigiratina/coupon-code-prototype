@@ -38,6 +38,7 @@ export interface CouponFormValues {
   usageLimit: string;
   usageLimitMode: "" | "only_once" | "until_runout" | "custom";
   amountLimit: string;
+  maxDiscountPerUser: string;
 }
 
 export interface VolumeTierErrors {
@@ -61,6 +62,7 @@ export interface CouponFormErrors {
   expiryDate?: string;
   usageLimit?: string;
   amountLimit?: string;
+  maxDiscountPerUser?: string;
 }
 
 export interface CouponFormSubmitContext {
