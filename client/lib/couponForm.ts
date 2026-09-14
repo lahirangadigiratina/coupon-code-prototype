@@ -19,6 +19,14 @@ function createTierId() {
   return `tier_${crypto.randomUUID()}`;
 }
 
+export function getCouponPhoneNumbers(coupon: Coupon): string[] {
+  if (coupon.customerPhones?.length) {
+    return coupon.customerPhones.map((phone) => phone.trim()).filter(Boolean);
+  }
+  const legacy = coupon.customerPhone?.trim();
+  return legacy ? [legacy] : [];
+}
+
 export function createDefaultVolumeTiers(): VolumeTierInput[] {
   return [
     { id: createTierId(), minQuantity: "10", percentage: "5" },
@@ -44,7 +52,7 @@ export function createDefaultCouponFormValues(): CouponFormValues {
     maxWeightKg: "",
     customerType: "all",
     minimumOrderValue: "",
-    customerPhone: "",
+    customerPhones: [],
     states: [],
     startDate: "",
     expiryDate: "",
@@ -368,7 +376,7 @@ export function buildCouponFromForm(values: CouponFormValues, existing?: Coupon)
     usageLimit: resolveUsageLimit(values),
     amountLimit: amountLimit && amountLimit > 0 ? amountLimit : null,
     amountUsed: existing?.amountUsed ?? 0,
-    customerPhone: values.customerPhone.trim() || null,
+    customerPhones: values.customerPhones.length > 0 ? values.customerPhones : undefined,
     status: isCouponExpired(values.expiryDate)
       ? "expired"
       : existing?.status === "expired"
@@ -441,7 +449,7 @@ export function couponToFormValues(coupon: Coupon): CouponFormValues {
       coupon.restrictions.minimumOrderValue !== null
         ? String(coupon.restrictions.minimumOrderValue)
         : "",
-    customerPhone: coupon.customerPhone ?? "",
+    customerPhones: getCouponPhoneNumbers(coupon),
     states: coupon.restrictions?.states ?? [],
     startDate: coupon.startDate,
     expiryDate: coupon.expiryDate,

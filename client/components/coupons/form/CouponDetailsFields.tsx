@@ -14,7 +14,6 @@ import {
   type CouponType,
 } from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
-import { CouponCodeInfoTooltip } from "./CouponCodeInfoTooltip";
 import { CurrencyInput } from "./CurrencyInput";
 import { FormField, fieldInputClass } from "./FormField";
 
@@ -22,7 +21,6 @@ interface CouponDetailsFieldsProps {
   values: CouponFormValues;
   errors: CouponFormErrors;
   codeLocked?: boolean;
-  showCodeAndAlias?: boolean;
   onTypeChange: (type: CouponType) => void;
   onChange: (patch: Partial<CouponFormValues>) => void;
 }
@@ -31,7 +29,6 @@ export function CouponDetailsFields({
   values,
   errors,
   codeLocked,
-  showCodeAndAlias = true,
   onTypeChange,
   onChange,
 }: CouponDetailsFieldsProps) {
@@ -99,13 +96,6 @@ export function CouponDetailsFields({
         )}
       </div>
 
-      {showCodeAndAlias && (
-        <div className="grid gap-5 md:grid-cols-2">
-          <CouponCodeField values={values} errors={errors} />
-          <AliasField value={values.alias} onChange={(alias) => onChange({ alias })} />
-        </div>
-      )}
-
       {codeLocked && isCouponExpired(values.expiryDate) && (
         <p className="text-body-sm text-muted-foreground">
           This coupon is Expired because the end date has passed. It cannot be activated until the
@@ -113,59 +103,5 @@ export function CouponDetailsFields({
         </p>
       )}
     </div>
-  );
-}
-
-function CouponCodeField({
-  values,
-  errors,
-}: {
-  values: CouponFormValues;
-  errors: CouponFormErrors;
-}) {
-  return (
-    <FormField
-      id="coupon-code"
-      label="Coupon code"
-      required
-      error={errors.code}
-      className="w-full"
-      hint="Generated when you create this coupon. Coupon codes cannot be changed after creation."
-      labelAddon={<CouponCodeInfoTooltip />}
-    >
-      <Input
-        id="coupon-code"
-        value={values.code}
-        readOnly
-        autoComplete="off"
-        spellCheck={false}
-        aria-invalid={Boolean(errors.code)}
-        className="cursor-not-allowed bg-muted font-medium tracking-wide uppercase"
-      />
-    </FormField>
-  );
-}
-
-function AliasField({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <FormField
-      id="coupon-alias"
-      label="Coupon Code Alias"
-      hint="Optional name to help identify this code. Leave blank if not needed."
-    >
-      <Input
-        id="coupon-alias"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="Enter Coupon Code Alias"
-        autoComplete="off"
-      />
-    </FormField>
   );
 }

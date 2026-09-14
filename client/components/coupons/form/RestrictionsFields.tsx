@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
+import { ChoosePhoneNumberDialog } from "./ChoosePhoneNumberDialog";
 import { CurrencyInput } from "./CurrencyInput";
 import { FormField, fieldInputClass } from "./FormField";
 import { ParcelSizeMultiSelect } from "./ParcelSizeMultiSelect";
+import { PhoneChipInput } from "./PhoneChipInput";
 import { StateMultiSelect } from "./StateMultiSelect";
 
 interface RestrictionsFieldsProps {
@@ -13,6 +16,8 @@ interface RestrictionsFieldsProps {
 }
 
 export function RestrictionsFields({ values, errors, onChange }: RestrictionsFieldsProps) {
+  const [phonePickerOpen, setPhonePickerOpen] = useState(false);
+
   return (
     <div className="grid gap-5 md:grid-cols-2">
       <FormField
@@ -107,17 +112,36 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
         id="customer-phone"
         label="Phone number"
         hint="Leave blank for all eligible customers."
+        hintAction={
+          <button
+            type="button"
+            className="shrink-0 text-caption-sm font-medium text-foreground underline-offset-4 hover:underline"
+            onClick={() => setPhonePickerOpen(true)}
+          >
+            Choose phone number
+          </button>
+        }
       >
-        <Input
+        <PhoneChipInput
           id="customer-phone"
-          type="tel"
-          inputMode="tel"
-          value={values.customerPhone}
-          onChange={(event) => onChange({ customerPhone: event.target.value })}
-          placeholder="Enter phone number"
-          autoComplete="off"
+          value={values.customerPhones}
+          onChange={(customerPhones) => onChange({ customerPhones })}
         />
       </FormField>
+      <ChoosePhoneNumberDialog
+        open={phonePickerOpen}
+        selectedPhones={values.customerPhones}
+        onClose={() => setPhonePickerOpen(false)}
+        onAdd={(phones) => {
+          const existing = new Set(values.customerPhones.map((phone) => phone.replace(/\s/g, "")));
+          onChange({
+            customerPhones: [
+              ...values.customerPhones,
+              ...phones.filter((phone) => !existing.has(phone.replace(/\s/g, ""))),
+            ],
+          });
+        }}
+      />
     </div>
   );
 }

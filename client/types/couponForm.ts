@@ -31,7 +31,7 @@ export interface CouponFormValues {
   maxWeightKg: string;
   customerType: CustomerType;
   minimumOrderValue: string;
-  customerPhone: string;
+  customerPhones: string[];
   states: AustralianState[];
   startDate: string;
   expiryDate: string;

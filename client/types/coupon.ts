@@ -212,5 +212,6 @@ export interface Coupon {
   logs: CouponLog[];
   alias?: string | null;
   customerPhone?: string | null;
+  customerPhones?: string[];
   restrictions?: CouponRestrictions;
 }

@@ -9,10 +9,11 @@ import {
   hasCouponFormErrors,
   validateCouponForm,
 } from "@/lib/couponForm";
-import { generateUniqueCouponCode, getCouponCodeSuffix } from "@/lib/couponCode";
+import { composeCouponCode } from "@/lib/couponCode";
 import type { Coupon, CouponType } from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues, VolumeTierInput } from "@/types/couponForm";
 import { ApplicabilityFields } from "./ApplicabilityFields";
+import { CouponCodeFields } from "./CouponCodeFields";
 import { CouponDetailsFields } from "./CouponDetailsFields";
 import { DiscountFields } from "./DiscountFields";
 import { FormSection } from "./FormSection";
@@ -44,7 +45,7 @@ export function CouponForm({
     () => initialValues ?? createDefaultCouponFormValues(),
   );
   const [errors, setErrors] = useState<CouponFormErrors>({});
-  const codeGenerated = Boolean(getCouponCodeSuffix(values.code, values.type));
+  const [codeSectionVisible, setCodeSectionVisible] = useState(mode === "edit");
 
   const updateValues = (patch: Partial<CouponFormValues>) => {
     setValues((prev) => ({ ...prev, ...patch }));
@@ -63,15 +64,9 @@ export function CouponForm({
   };
 
   const handleTypeChange = (type: CouponType) => {
-    setValues((prev) => {
-      const next = applyCouponTypeChange(prev, type, {
-        lockCode: mode === "edit" || !getCouponCodeSuffix(prev.code, prev.type),
-      });
-      if (mode === "edit" || !getCouponCodeSuffix(next.code, type)) return next;
-      const taken = existingCodes.some((code) => code.toUpperCase() === next.code.toUpperCase());
-      if (!taken) return next;
-      return { ...next, code: generateUniqueCouponCode(type, existingCodes) };
-    });
+    setValues((prev) =>
+      applyCouponTypeChange(prev, type, { lockCode: mode === "edit" || !codeSectionVisible }),
+    );
     setErrors((prev) => {
       const next = { ...prev };
       delete next.type;
@@ -102,11 +97,11 @@ export function CouponForm({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const generatingCode = mode === "create" && !codeGenerated;
+    const revealingCode = mode === "create" && !codeSectionVisible;
     const nextErrors = validateCouponForm(values, {
       existingCodes,
       currentCode,
-      lockCode: mode === "edit" || generatingCode,
+      lockCode: mode === "edit" || revealingCode,
       minUsageLimit: existingCoupon?.usageCount,
       minAmountUsed: existingCoupon?.amountUsed,
     });
@@ -120,11 +115,12 @@ export function CouponForm({
       return;
     }
 
-    if (generatingCode) {
-      const code = generateUniqueCouponCode(values.type, existingCodes);
-      setValues((prev) => ({ ...prev, code }));
+    if (revealingCode) {
+      setValues((prev) => ({ ...prev, code: composeCouponCode("", prev.type) }));
+      setCodeSectionVisible(true);
       window.requestAnimationFrame(() => {
         document.getElementById("coupon-code")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        document.getElementById("coupon-code")?.focus();
       });
       return;
     }
@@ -133,7 +129,7 @@ export function CouponForm({
   };
 
   const canCreate =
-    mode === "edit" || areMandatoryCouponFieldsFilled(values, { requireCode: codeGenerated });
+    mode === "edit" || areMandatoryCouponFieldsFilled(values, { requireCode: codeSectionVisible });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
@@ -143,7 +139,6 @@ export function CouponForm({
             values={values}
             errors={errors}
             codeLocked
-            showCodeAndAlias={mode === "edit" || codeGenerated}
             onTypeChange={handleTypeChange}
             onChange={updateValues}
           />
@@ -173,6 +168,17 @@ export function CouponForm({
         <FormSection title="Applicability">
           <ApplicabilityFields values={values} onChange={updateValues} />
         </FormSection>
+
+        {(mode === "edit" || codeSectionVisible) && (
+          <FormSection title="Coupon code">
+            <CouponCodeFields
+              values={values}
+              errors={errors}
+              codeLocked={mode === "edit"}
+              onChange={updateValues}
+            />
+          </FormSection>
+        )}
       </div>
 
       <div className="sticky bottom-0 z-30 flex flex-col-reverse gap-3 border-t bg-neutral-50 py-4 sm:flex-row sm:items-center sm:justify-end">
@@ -180,7 +186,7 @@ export function CouponForm({
           Cancel
         </Button>
         <Button type="submit" className="w-full sm:w-auto" disabled={!canCreate}>
-          {mode === "create" && codeGenerated ? "Save coupon" : submitLabel}
+          {mode === "create" && codeSectionVisible ? "Save coupon" : submitLabel}
         </Button>
       </div>
     </form>

@@ -29,6 +29,7 @@ import {
   isUsageLimitReached,
 } from "@/lib/couponDisplay";
 import { couponEditPath, couponLogsPath } from "@/lib/couponPaths";
+import { getCouponPhoneNumbers } from "@/lib/couponForm";
 import {
   formatCustomerTypeRestriction,
   formatDeliverySpeedRestriction,
@@ -67,6 +68,7 @@ export function CouponDetailsPage() {
   }
 
   const status = getEffectiveCouponStatus(coupon);
+  const phoneNumbers = getCouponPhoneNumbers(coupon);
   const unavailableLabel = getUnavailableLabel(coupon);
   const usageProgress = getUsageProgress(coupon);
   const amountProgress = getAmountProgress(coupon);
@@ -135,7 +137,7 @@ export function CouponDetailsPage() {
           <DetailField label="Coupon Type" value={formatCouponType(coupon.type)} />
           <DetailField
             label="Phone number"
-            value={coupon.customerPhone?.trim() || "All eligible customers"}
+            value={phoneNumbers.length > 0 ? phoneNumbers.join(", ") : "All eligible customers"}
           />
           <DetailField label="Status" value={<CouponStatusBadge status={status} />} />
           <DetailField label="Created Date" value={formatDate(coupon.createdDate)} />

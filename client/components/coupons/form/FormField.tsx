@@ -7,6 +7,7 @@ interface FormFieldProps {
   label: string;
   required?: boolean;
   hint?: string;
+  hintAction?: ReactNode;
   error?: string;
   className?: string;
   labelAddon?: ReactNode;
@@ -18,6 +19,7 @@ export function FormField({
   label,
   required,
   hint,
+  hintAction,
   error,
   className,
   labelAddon,
@@ -40,10 +42,15 @@ export function FormField({
           {error}
         </p>
       )}
-      {hint && (
-        <p id={`${id}-hint`} className="text-caption-sm text-muted-foreground">
-          {hint}
-        </p>
+      {(hint || hintAction) && (
+        <div className="flex items-start justify-between gap-3">
+          {hint ? (
+            <p id={`${id}-hint`} className="text-caption-sm text-muted-foreground">
+              {hint}
+            </p>
+          ) : null}
+          {hintAction}
+        </div>
       )}
     </div>
   );
