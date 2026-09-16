@@ -2,7 +2,6 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { getDiscountPreview } from "@/lib/couponForm";
 import type { CouponFormErrors, CouponFormValues, VolumeTierInput } from "@/types/couponForm";
 import { FormField, fieldInputClass } from "./FormField";
 
@@ -21,8 +20,6 @@ export function DiscountFields({
   onRemoveTier,
   onTierChange,
 }: DiscountFieldsProps) {
-  const preview = getDiscountPreview(values);
-
   return (
     <div className="space-y-5">
       {values.type === "volume_discount" && (
@@ -116,13 +113,6 @@ export function DiscountFields({
               );
             })}
           </div>
-        </div>
-      )}
-
-      {preview && (
-        <div className="rounded-lg border border-dashed bg-neutral-50 px-3 py-2 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{preview}</span>
-          <span> given per user.</span>
         </div>
       )}
     </div>

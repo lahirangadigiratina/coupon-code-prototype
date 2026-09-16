@@ -1,5 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { CouponForm } from "@/components/coupons/form/CouponForm";
 import { useToast } from "@/components/ui/toast";
 import { useCoupons } from "@/context/CouponsContext";
@@ -22,28 +21,16 @@ export function CreateCouponCodePage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="sticky top-16 z-30 -mx-6 border-b bg-neutral-50 px-6 pb-4 pt-2">
-        <Link
-          to="/coupon-codes"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Coupon Codes
-        </Link>
-        <h1 className="mt-4 text-h1">Create Coupon Code</h1>
-        <p className="mt-1 text-body-sm text-muted-foreground">
-          Create a discount code that customers can use when booking shipments.
-        </p>
-      </div>
-
-      <CouponForm
-        mode="create"
-        existingCodes={coupons.map((coupon) => coupon.code)}
-        submitLabel="Create coupon code"
-        onSubmit={handleSubmit}
-        onCancel={goBack}
-      />
-    </div>
+    <CouponForm
+      mode="create"
+      existingCodes={coupons.map((coupon) => coupon.code)}
+      title="Create Coupon Code"
+      description="Create a discount code that customers can use when booking shipments."
+      backTo="/coupon-codes"
+      backLabel="Back to Coupon Codes"
+      submitLabel="Validate coupon code"
+      onSubmit={handleSubmit}
+      onCancel={goBack}
+    />
   );
 }

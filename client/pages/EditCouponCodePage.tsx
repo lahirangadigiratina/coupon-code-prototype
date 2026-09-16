@@ -45,32 +45,19 @@ export function EditCouponCodePage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="sticky top-16 z-30 -mx-6 border-b bg-neutral-50 px-6 pb-4 pt-2">
-        <Link
-          to={detailsPath}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Coupon Details
-        </Link>
-        <h1 className="mt-4 text-h1">Edit Coupon Code</h1>
-        <p className="mt-1 text-body-sm text-muted-foreground">
-          Update the discount, restrictions, and validity for {coupon.code}. The coupon code itself
-          cannot be changed.
-        </p>
-      </div>
-
-      <CouponForm
-        key={coupon.id}
-        mode="edit"
-        initialValues={couponToFormValues(coupon)}
-        existingCoupon={coupon}
-        currentCode={coupon.code}
-        submitLabel="Save changes"
-        onSubmit={handleSubmit}
-        onCancel={() => navigate(detailsPath)}
-      />
-    </div>
+    <CouponForm
+      key={coupon.id}
+      mode="edit"
+      initialValues={couponToFormValues(coupon)}
+      existingCoupon={coupon}
+      currentCode={coupon.code}
+      title="Edit Coupon Code"
+      description={`Update the discount, restrictions, and validity for ${coupon.code}. The coupon code itself cannot be changed.`}
+      backTo={detailsPath}
+      backLabel="Back to Coupon Details"
+      submitLabel="Save changes"
+      onSubmit={handleSubmit}
+      onCancel={() => navigate(detailsPath)}
+    />
   );
 }

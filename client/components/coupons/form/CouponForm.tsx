@@ -1,4 +1,6 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   applyCouponTypeChange,
@@ -16,6 +18,7 @@ import { ApplicabilityFields } from "./ApplicabilityFields";
 import { CouponCodeFields } from "./CouponCodeFields";
 import { CouponDetailsFields } from "./CouponDetailsFields";
 import { DiscountFields } from "./DiscountFields";
+import { DiscountPreview } from "./DiscountPreview";
 import { FormSection } from "./FormSection";
 import { RestrictionsFields } from "./RestrictionsFields";
 import { UsageValidityFields } from "./UsageValidityFields";
@@ -27,6 +30,10 @@ interface CouponFormProps {
   existingCodes?: string[];
   currentCode?: string;
   submitLabel: string;
+  title: string;
+  description: ReactNode;
+  backTo: string;
+  backLabel: string;
   onSubmit: (coupon: Coupon) => void;
   onCancel: () => void;
 }
@@ -38,6 +45,10 @@ export function CouponForm({
   existingCodes = [],
   currentCode,
   submitLabel,
+  title,
+  description,
+  backTo,
+  backLabel,
   onSubmit,
   onCancel,
 }: CouponFormProps) {
@@ -133,6 +144,19 @@ export function CouponForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <div className="sticky top-16 z-30 -mx-6 border-b bg-neutral-50 px-6 pb-4 pt-2">
+        <Link
+          to={backTo}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {backLabel}
+        </Link>
+        <h1 className="mt-4 text-h1">{title}</h1>
+        <p className="mt-1 text-body-sm text-muted-foreground">{description}</p>
+        <DiscountPreview values={values} />
+      </div>
+
       <div className="space-y-6">
         <FormSection title="Type">
           <CouponDetailsFields

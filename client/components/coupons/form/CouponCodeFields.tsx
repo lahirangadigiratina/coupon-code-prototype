@@ -1,4 +1,3 @@
-import { Input } from "@/components/ui/input";
 import { composeCouponCode, getCodePrefixLabel, getCouponCodeSuffix } from "@/lib/couponCode";
 import { cn } from "@/lib/utils";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
@@ -64,19 +63,6 @@ export function CouponCodeFields({
             }}
           />
         </div>
-      </FormField>
-      <FormField
-        id="coupon-alias"
-        label="Coupon Code Alias"
-        hint="Optional name to help identify this code. Leave blank if not needed."
-      >
-        <Input
-          id="coupon-alias"
-          value={values.alias}
-          onChange={(event) => onChange({ alias: event.target.value })}
-          placeholder="Enter Coupon Code Alias"
-          autoComplete="off"
-        />
       </FormField>
     </div>
   );

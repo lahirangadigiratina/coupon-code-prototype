@@ -40,6 +40,7 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
       <FormField
         id="minimum-order-value"
         label="Minimum order value"
+        hint="Minimum shipment value required for the customer to use this coupon."
         error={errors.minimumOrderValue}
       >
         <CurrencyInput
