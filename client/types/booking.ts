@@ -13,6 +13,7 @@ export interface BookingCart {
   customerType: Exclude<CustomerType, "all">;
   destinationState: AustralianState;
   completedShipmentCount: number;
+  customerPhone: string;
   appliedCouponCode: string | null;
 }
 
@@ -29,5 +30,6 @@ export const DEFAULT_BOOKING_CART: BookingCart = {
   customerType: "new",
   destinationState: "vic",
   completedShipmentCount: 12,
+  customerPhone: "0412 345 678",
   appliedCouponCode: null,
 };

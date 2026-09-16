@@ -18,7 +18,7 @@ interface AppliedState {
 
 export function BookingReviewPage() {
   const { cart, removeCoupon } = useBookingCart();
-  const { coupons } = useCoupons();
+  const { coupons, updateCoupon } = useCoupons();
   const { showToast } = useToast();
   const [applied, setApplied] = useState<AppliedState | null>(null);
 
@@ -43,6 +43,7 @@ export function BookingReviewPage() {
     cart.deliveryFee,
     cart.taxAmount,
     cart.completedShipmentCount,
+    cart.customerPhone,
     coupons,
     removeCoupon,
   ]);
@@ -86,6 +87,18 @@ export function BookingReviewPage() {
           <Button
             className="w-full"
             onClick={() => {
+              if (liveApplied) {
+                updateCoupon(liveApplied.coupon.id, {
+                  redemptions: [
+                    ...(liveApplied.coupon.redemptions ?? []),
+                    {
+                      id: `rdm_${crypto.randomUUID()}`,
+                      customerKey: cart.customerPhone,
+                      timestamp: new Date().toISOString(),
+                    },
+                  ],
+                });
+              }
               showToast({
                 title: "Ready to continue booking",
                 description: `Total due ${formatMoneyAud(total)}${

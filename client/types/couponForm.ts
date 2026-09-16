@@ -4,6 +4,7 @@ import type {
   CustomerType,
   DeliverySpeed,
   DiscountBasis,
+  FrequencyPeriod,
   RouteRestriction,
   SelectableParcelSize,
 } from "@/types/coupon";
@@ -39,6 +40,8 @@ export interface CouponFormValues {
   usageLimitMode: "" | "only_once" | "until_runout" | "custom";
   amountLimit: string;
   maxDiscountPerUser: string;
+  frequencyLimit: string;
+  frequencyPeriod: "" | FrequencyPeriod;
 }
 
 export interface VolumeTierErrors {
@@ -63,6 +66,8 @@ export interface CouponFormErrors {
   usageLimit?: string;
   amountLimit?: string;
   maxDiscountPerUser?: string;
+  frequencyLimit?: string;
+  frequencyPeriod?: string;
 }
 
 export interface CouponFormSubmitContext {

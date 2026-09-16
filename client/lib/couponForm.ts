@@ -59,6 +59,8 @@ export function createDefaultCouponFormValues(): CouponFormValues {
     usageLimitMode: "",
     amountLimit: "",
     maxDiscountPerUser: "",
+    frequencyLimit: "",
+    frequencyPeriod: "",
   };
 }
 
@@ -283,6 +285,16 @@ export function validateCouponForm(
     }
   }
 
+  if (values.frequencyLimit.trim() || values.frequencyPeriod) {
+    const frequencyLimit = parseNumber(values.frequencyLimit);
+    if (frequencyLimit === null || frequencyLimit <= 0 || !Number.isInteger(frequencyLimit)) {
+      errors.frequencyLimit = "Enter how many times one customer can redeem this coupon in the period.";
+    }
+    if (!values.frequencyPeriod) {
+      errors.frequencyPeriod = "Select a calendar period.";
+    }
+  }
+
   return errors;
 }
 
@@ -365,6 +377,7 @@ function todayIsoDate() {
 export function buildCouponFromForm(values: CouponFormValues, existing?: Coupon): Coupon {
   const amountLimit = parseNumber(values.amountLimit);
   const maxDiscountPerUser = parseNumber(values.maxDiscountPerUser);
+  const frequencyLimit = parseNumber(values.frequencyLimit);
   const editedLog = existing
     ? {
         id: `log_${crypto.randomUUID()}`,
@@ -389,6 +402,11 @@ export function buildCouponFromForm(values: CouponFormValues, existing?: Coupon)
     amountLimit: amountLimit && amountLimit > 0 ? amountLimit : null,
     amountUsed: existing?.amountUsed ?? 0,
     maxDiscountPerUser: maxDiscountPerUser && maxDiscountPerUser > 0 ? maxDiscountPerUser : null,
+    frequency:
+      frequencyLimit && frequencyLimit > 0 && values.frequencyPeriod
+        ? { limit: frequencyLimit, period: values.frequencyPeriod }
+        : null,
+    redemptions: existing?.redemptions ?? [],
     customerPhones: values.customerPhones.length > 0 ? values.customerPhones : undefined,
     status: "active",
     createdDate: existing?.createdDate ?? todayIsoDate(),
@@ -466,6 +484,8 @@ export function couponToFormValues(coupon: Coupon): CouponFormValues {
     usageLimitMode: usageLimitModeFromCoupon(coupon.usageLimit),
     amountLimit: coupon.amountLimit ? String(coupon.amountLimit) : "",
     maxDiscountPerUser: coupon.maxDiscountPerUser ? String(coupon.maxDiscountPerUser) : "",
+    frequencyLimit: coupon.frequency?.limit ? String(coupon.frequency.limit) : "",
+    frequencyPeriod: coupon.frequency?.period ?? "",
   };
 }
 

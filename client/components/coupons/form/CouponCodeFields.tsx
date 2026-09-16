@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { composeCouponCode, getCodePrefixLabel, getCouponCodeSuffix } from "@/lib/couponCode";
 import { cn } from "@/lib/utils";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
@@ -8,21 +9,24 @@ interface CouponCodeFieldsProps {
   values: CouponFormValues;
   errors: CouponFormErrors;
   codeLocked?: boolean;
+  validated?: boolean;
   onChange: (patch: Partial<CouponFormValues>) => void;
+  onValidate?: () => void;
 }
 
 export function CouponCodeFields({
   values,
   errors,
   codeLocked,
+  validated,
   onChange,
+  onValidate,
 }: CouponCodeFieldsProps) {
   const prefix = getCodePrefixLabel(values.code);
   const suffix = getCouponCodeSuffix(values.code, values.type);
 
   return (
-    <div className="grid gap-5 md:grid-cols-2">
-      <FormField
+    <FormField
         id="coupon-code"
         label="Coupon code"
         required
@@ -31,7 +35,9 @@ export function CouponCodeFields({
         hint={
           codeLocked
             ? "Coupon codes cannot be changed after creation."
-            : "The prefix is generated from the coupon configurations. Enter 4–8 characters for the rest of the code."
+            : validated
+              ? "This coupon code is available. You can save the coupon."
+              : "The prefix is generated from the coupon configurations. Enter 4–8 characters for the rest of the code, then validate."
         }
         labelAddon={<CouponCodeInfoTooltip />}
       >
@@ -39,6 +45,7 @@ export function CouponCodeFields({
           className={cn(
             "flex h-10 w-full overflow-hidden rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
             fieldInputClass(errors.code),
+            validated && !errors.code && "border-emerald-300",
             codeLocked && "cursor-not-allowed bg-muted",
           )}
         >
@@ -62,8 +69,19 @@ export function CouponCodeFields({
               onChange({ code: composeCouponCode(event.target.value, values.type) });
             }}
           />
+          {!codeLocked && (
+            <Button
+              type="button"
+              size="sm"
+              variant={validated ? "outline" : "default"}
+              className="m-1 h-8 shrink-0 px-2.5"
+              disabled={!suffix.trim() || validated}
+              onClick={onValidate}
+            >
+              {validated ? "Validated" : "Validate"}
+            </Button>
+          )}
         </div>
       </FormField>
-    </div>
   );
 }

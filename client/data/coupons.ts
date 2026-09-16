@@ -349,6 +349,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
     expiryDate: "2026-12-31",
     usageCount: 21,
     usageLimit: 400,
+    frequency: { limit: 1, period: "week" },
     status: "active",
     createdDate: "2026-05-01",
     restrictions: {

@@ -21,6 +21,7 @@ import {
   isAmountLimitReached,
   isUsageLimitReached,
 } from "@/lib/couponDisplay";
+import { formatFrequencyLimit } from "@/lib/couponFrequency";
 import { couponEditPath, couponLogsPath } from "@/lib/couponPaths";
 import { getCouponPhoneNumbers } from "@/lib/couponForm";
 import {
@@ -239,6 +240,7 @@ export function CouponDetailsPage() {
               label="Maximum discount value per user"
               value={coupon.maxDiscountPerUser ? formatAud(coupon.maxDiscountPerUser) : "No per-user cap"}
             />
+            <DetailField label="Frequency" value={formatFrequencyLimit(coupon)} />
           </dl>
         </div>
       </FormSection>

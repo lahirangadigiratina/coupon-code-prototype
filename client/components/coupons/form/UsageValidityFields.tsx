@@ -6,6 +6,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  FREQUENCY_PERIODS,
+  FREQUENCY_PERIOD_LABELS,
+  type FrequencyPeriod,
+} from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
 import { CurrencyInput } from "./CurrencyInput";
 import { DateRangeInput } from "./DateInput";
@@ -159,6 +164,45 @@ export function UsageValidityFields({
           onChange={({ startDate, endDate }) => onChange({ startDate, expiryDate: endDate })}
           invalid={Boolean(errors.startDate || errors.expiryDate)}
         />
+      </FormField>
+
+      <FormField
+        id="frequency-limit"
+        label="Frequency"
+        className="md:col-span-2"
+        hint="Limits each customer’s coupon redemptions per day, week, or month. Resets at midnight, Monday, or the 1st. Limits apply per customer, not the entire coupon."
+        error={errors.frequencyLimit || errors.frequencyPeriod}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Input
+            id="frequency-limit"
+            inputMode="numeric"
+            value={values.frequencyLimit}
+            onChange={(event) => onChange({ frequencyLimit: event.target.value })}
+            placeholder="1"
+            aria-invalid={Boolean(errors.frequencyLimit)}
+            className={fieldInputClass(errors.frequencyLimit)}
+          />
+          <Select
+            value={values.frequencyPeriod || undefined}
+            onValueChange={(value) => onChange({ frequencyPeriod: value as FrequencyPeriod })}
+          >
+            <SelectTrigger
+              id="frequency-period"
+              className={fieldInputClass(errors.frequencyPeriod)}
+              aria-invalid={Boolean(errors.frequencyPeriod)}
+            >
+              <SelectValue placeholder="Period" />
+            </SelectTrigger>
+            <SelectContent>
+              {FREQUENCY_PERIODS.map((period) => (
+                <SelectItem key={period} value={period}>
+                  Per {FREQUENCY_PERIOD_LABELS[period].toLowerCase()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </FormField>
     </div>
   );

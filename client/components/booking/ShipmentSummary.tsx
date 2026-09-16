@@ -148,6 +148,17 @@ export function ShipmentSummary() {
         </div>
 
         <div className="space-y-1.5">
+          <Label htmlFor="customer-phone">Customer phone</Label>
+          <Input
+            id="customer-phone"
+            type="tel"
+            inputMode="tel"
+            value={cart.customerPhone}
+            onChange={(event) => updateCart({ customerPhone: event.target.value })}
+          />
+        </div>
+
+        <div className="space-y-1.5">
           <Label htmlFor="shipment-history">Completed shipments</Label>
           <Input
             id="shipment-history"

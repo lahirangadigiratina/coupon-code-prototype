@@ -2,8 +2,6 @@ import type { BookingCart } from "@/types/booking";
 import type { Coupon, VolumeDiscountTier } from "@/types/coupon";
 import { AUSTRALIAN_STATE_LABELS, CUSTOMER_TYPE_LABELS, DELIVERY_SPEED_LABELS } from "@/types/coupon";
 import { calculateCouponDiscount, getCouponDiscountBase } from "@/lib/couponDiscount";
-import { formatParcelSizeRestriction } from "@/lib/couponRestrictions";
-import { parcelMatchesRestrictions } from "@/lib/parcelSizes";
 import {
   findCouponByCode,
   formatAud,
@@ -13,6 +11,9 @@ import {
   isCouponNotYetValid,
   isUsageLimitReached,
 } from "@/lib/couponDisplay";
+import { isFrequencyLimitReached } from "@/lib/couponFrequency";
+import { formatParcelSizeRestriction } from "@/lib/couponRestrictions";
+import { parcelMatchesRestrictions } from "@/lib/parcelSizes";
 
 export type CouponValidationErrorCode =
   | "invalid_code"
@@ -27,6 +28,7 @@ export type CouponValidationErrorCode =
   | "restriction_customer_type"
   | "restriction_minimum_order"
   | "restriction_state"
+  | "frequency_limit"
   | "volume_tier";
 
 export type CouponValidationSuccess = {
@@ -51,6 +53,7 @@ export const COUPON_VALIDATION_MESSAGES = {
   usage_limit: "This coupon has reached its usage limit.",
   amount_limit: "This coupon's discount limit has been reached.",
   already_applied: "Only one coupon can be applied to a shipment.",
+  frequency_limit: "You have already used this coupon the maximum number of times for this period.",
 } as const;
 
 function fail(code: CouponValidationErrorCode, message: string): CouponValidationFailure {
@@ -83,6 +86,14 @@ export function validateCouponForCart(
 
   if (isAmountLimitReached(coupon)) {
     return fail("amount_limit", COUPON_VALIDATION_MESSAGES.amount_limit);
+  }
+
+  if (isFrequencyLimitReached(coupon, cart.customerPhone)) {
+    const unit = coupon.frequency?.period ?? "period";
+    return fail(
+      "frequency_limit",
+      `You have already used this coupon the maximum number of times this ${unit}. It will be available again at the start of the next ${unit}.`,
+    );
   }
 
   const restrictions = coupon.restrictions;

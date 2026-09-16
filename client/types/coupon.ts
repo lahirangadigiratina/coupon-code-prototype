@@ -10,6 +10,26 @@ export const COUPON_TYPE_LABELS: Record<CouponType, string> = {
   volume_discount: "Volume discount",
 };
 
+export const FREQUENCY_PERIODS = ["day", "week", "month"] as const;
+export type FrequencyPeriod = (typeof FREQUENCY_PERIODS)[number];
+
+export const FREQUENCY_PERIOD_LABELS: Record<FrequencyPeriod, string> = {
+  day: "Day",
+  week: "Week",
+  month: "Month",
+};
+
+export interface CouponFrequency {
+  limit: number;
+  period: FrequencyPeriod;
+}
+
+export interface CouponRedemption {
+  id: string;
+  customerKey: string;
+  timestamp: string;
+}
+
 export const DISCOUNT_BASES = ["before_tax", "total_value"] as const;
 export type DiscountBasis = (typeof DISCOUNT_BASES)[number];
 
@@ -209,6 +229,8 @@ export interface Coupon {
   amountLimit?: number | null;
   amountUsed?: number;
   maxDiscountPerUser?: number | null;
+  frequency?: CouponFrequency | null;
+  redemptions?: CouponRedemption[];
   status: CouponStatus;
   createdDate: string;
   logs: CouponLog[];

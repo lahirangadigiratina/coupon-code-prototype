@@ -11,10 +11,9 @@ import {
   hasCouponFormErrors,
   validateCouponForm,
 } from "@/lib/couponForm";
-import { composeCouponCode } from "@/lib/couponCode";
+import { composeCouponCode, normalizeCouponCodeInput, validateCouponCode } from "@/lib/couponCode";
 import type { Coupon, CouponType } from "@/types/coupon";
 import type { CouponFormErrors, CouponFormValues, VolumeTierInput } from "@/types/couponForm";
-import { ApplicabilityFields } from "./ApplicabilityFields";
 import { CouponCodeFields } from "./CouponCodeFields";
 import { CouponDetailsFields } from "./CouponDetailsFields";
 import { DiscountFields } from "./DiscountFields";
@@ -57,8 +56,12 @@ export function CouponForm({
   );
   const [errors, setErrors] = useState<CouponFormErrors>({});
   const [codeSectionVisible, setCodeSectionVisible] = useState(mode === "edit");
+  const [codeValidated, setCodeValidated] = useState(mode === "edit");
 
   const updateValues = (patch: Partial<CouponFormValues>) => {
+    if (mode === "create" && "code" in patch) {
+      setCodeValidated(false);
+    }
     setValues((prev) => ({ ...prev, ...patch }));
     setErrors((prev) => {
       const next = { ...prev };
@@ -89,6 +92,7 @@ export function CouponForm({
       delete next.volumeTiersGeneral;
       return next;
     });
+    if (mode === "create") setCodeValidated(false);
   };
 
   const handleAddTier = () => {
@@ -129,6 +133,7 @@ export function CouponForm({
     if (revealingCode) {
       setValues((prev) => ({ ...prev, code: composeCouponCode("", prev.type) }));
       setCodeSectionVisible(true);
+      setCodeValidated(false);
       window.requestAnimationFrame(() => {
         document.getElementById("coupon-code")?.scrollIntoView({ behavior: "smooth", block: "center" });
         document.getElementById("coupon-code")?.focus();
@@ -136,11 +141,43 @@ export function CouponForm({
       return;
     }
 
+    if (mode === "create" && !codeValidated) return;
+
     onSubmit(buildCouponFromForm(values, existingCoupon));
   };
 
+  const handleValidateCode = () => {
+    const codeError = validateCouponCode(values.code, values.type);
+    if (codeError) {
+      setErrors((prev) => ({ ...prev, code: codeError }));
+      setCodeValidated(false);
+      return;
+    }
+
+    const normalized = normalizeCouponCodeInput(values.code);
+    const taken = existingCodes.some(
+      (code) =>
+        code.toUpperCase() === normalized &&
+        code.toUpperCase() !== currentCode?.toUpperCase(),
+    );
+    if (taken) {
+      setErrors((prev) => ({ ...prev, code: "This coupon code already exists." }));
+      setCodeValidated(false);
+      return;
+    }
+
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.code;
+      return next;
+    });
+    setCodeValidated(true);
+  };
+
   const canCreate =
-    mode === "edit" || areMandatoryCouponFieldsFilled(values, { requireCode: codeSectionVisible });
+    mode === "edit" ||
+    (areMandatoryCouponFieldsFilled(values, { requireCode: codeSectionVisible }) &&
+      (!codeSectionVisible || codeValidated));
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
@@ -189,17 +226,15 @@ export function CouponForm({
           />
         </FormSection>
 
-        <FormSection title="Applicability">
-          <ApplicabilityFields values={values} onChange={updateValues} />
-        </FormSection>
-
         {(mode === "edit" || codeSectionVisible) && (
           <FormSection title="Coupon code">
             <CouponCodeFields
               values={values}
               errors={errors}
               codeLocked={mode === "edit"}
+              validated={codeValidated}
               onChange={updateValues}
+              onValidate={handleValidateCode}
             />
           </FormSection>
         )}
