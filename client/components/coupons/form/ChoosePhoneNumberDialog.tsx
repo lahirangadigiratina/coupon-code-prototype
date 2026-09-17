@@ -128,7 +128,7 @@ export function ChoosePhoneNumberDialog({
         </div>
       </div>
 
-      <ul className="mt-3 min-h-0 flex-1 overflow-y-auto divide-y rounded-lg border">
+      <ul className="mt-3 max-h-[369px] min-h-0 flex-1 overflow-y-auto divide-y rounded-lg border">
         {pageItems.length === 0 ? (
           <li className="px-3 py-6 text-center text-body-sm text-muted-foreground">{emptyMessage}</li>
         ) : (
