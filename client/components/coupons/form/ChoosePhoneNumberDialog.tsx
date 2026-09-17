@@ -14,7 +14,7 @@ import { SAMPLE_CUSTOMER_PHONES } from "@/data/customerPhones";
 import { cn } from "@/lib/utils";
 
 const ROW_OPTIONS = [2, 5, 10, 20] as const;
-const DEFAULT_PAGE_SIZE = 2;
+const DEFAULT_PAGE_SIZE = 10;
 
 interface ChoosePhoneNumberDialogProps {
   open: boolean;
@@ -102,27 +102,33 @@ export function ChoosePhoneNumberDialog({
       : "No matching phone numbers.";
 
   return (
-    <Dialog open={open} onClose={handleClose} className="max-w-lg">
-      <h2 className="text-h3">Choose phone number</h2>
-      <p className="mt-2 text-body-sm text-muted-foreground">
-        Select customer phone numbers to restrict this coupon.
-      </p>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      className="flex max-h-[90dvh] max-w-lg flex-col overflow-hidden"
+    >
+      <div className="shrink-0">
+        <h2 className="text-h3">Choose phone number</h2>
+        <p className="mt-2 text-body-sm text-muted-foreground">
+          Select customer phone numbers to restrict this coupon.
+        </p>
 
-      <div className="relative mt-4">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setPage(1);
-          }}
-          placeholder="Search by name or phone number"
-          autoComplete="off"
-          className="pl-9"
-        />
+        <div className="relative mt-4">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Search by name or phone number"
+            autoComplete="off"
+            className="pl-9"
+          />
+        </div>
       </div>
 
-      <ul className="mt-3 divide-y rounded-lg border">
+      <ul className="mt-3 min-h-0 flex-1 overflow-y-auto divide-y rounded-lg border">
         {pageItems.length === 0 ? (
           <li className="px-3 py-6 text-center text-body-sm text-muted-foreground">{emptyMessage}</li>
         ) : (
@@ -132,7 +138,7 @@ export function ChoosePhoneNumberDialog({
               <li key={customer.phone}>
                 <button
                   type="button"
-                  className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-neutral-50"
+                  className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-neutral-50"
                   onClick={() => toggle(customer.phone)}
                 >
                   <span
@@ -146,9 +152,9 @@ export function ChoosePhoneNumberDialog({
                   >
                     {checked ? <Check className="h-3 w-3" /> : null}
                   </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-medium">{customer.name}</span>
-                    <span className="block text-caption-sm text-muted-foreground">
+                  <span className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                    <span className="truncate text-sm font-medium">{customer.name}</span>
+                    <span className="shrink-0 text-caption-sm text-muted-foreground">
                       {customer.phone}
                     </span>
                   </span>
@@ -159,7 +165,7 @@ export function ChoosePhoneNumberDialog({
         )}
       </ul>
 
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-3 shrink-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-caption-sm text-muted-foreground">
           Showing {rangeStart}-{rangeEnd} of {filtered.length}
         </p>
@@ -215,7 +221,7 @@ export function ChoosePhoneNumberDialog({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
+      <div className="mt-6 shrink-0 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
         <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={handleClose}>
           Cancel
         </Button>
