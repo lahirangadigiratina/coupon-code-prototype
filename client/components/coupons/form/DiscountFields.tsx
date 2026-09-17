@@ -1,6 +1,7 @@
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { sanitizeDecimalInput, sanitizeIntegerInput } from "@/lib/numericInput";
 import { cn } from "@/lib/utils";
 import type { CouponFormErrors, CouponFormValues, VolumeTierInput } from "@/types/couponForm";
 import { FormField, fieldInputClass } from "./FormField";
@@ -65,7 +66,9 @@ export function DiscountFields({
                         id={`${tier.id}-threshold`}
                         inputMode="numeric"
                         value={tier.minQuantity}
-                        onChange={(event) => onTierChange(tier.id, { minQuantity: event.target.value })}
+                        onChange={(event) =>
+                          onTierChange(tier.id, { minQuantity: sanitizeIntegerInput(event.target.value) })
+                        }
                         placeholder="10"
                         aria-invalid={Boolean(tierError?.minQuantity)}
                         className={cn("pr-8", fieldInputClass(tierError?.minQuantity))}
@@ -86,7 +89,9 @@ export function DiscountFields({
                         id={`${tier.id}-percentage`}
                         inputMode="decimal"
                         value={tier.percentage}
-                        onChange={(event) => onTierChange(tier.id, { percentage: event.target.value })}
+                        onChange={(event) =>
+                          onTierChange(tier.id, { percentage: sanitizeDecimalInput(event.target.value) })
+                        }
                         placeholder="5"
                         aria-invalid={Boolean(tierError?.percentage)}
                         className={cn("pr-9", fieldInputClass(tierError?.percentage))}

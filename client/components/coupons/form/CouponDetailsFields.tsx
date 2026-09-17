@@ -6,8 +6,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import { isCouponExpired, isCouponNotYetValid } from "@/lib/couponDisplay";
+import { sanitizeDecimalInput } from "@/lib/numericInput";
+import { cn } from "@/lib/utils";
 import {
   COUPON_TYPE_LABELS,
   COUPON_TYPES,
@@ -66,7 +67,9 @@ export function CouponDetailsFields({
                 id="discount-percentage"
                 inputMode="decimal"
                 value={values.percentageValue}
-                onChange={(event) => onChange({ percentageValue: event.target.value })}
+                onChange={(event) =>
+                  onChange({ percentageValue: sanitizeDecimalInput(event.target.value) })
+                }
                 placeholder="10"
                 aria-invalid={Boolean(errors.percentageValue)}
                 className={cn("pr-9", fieldInputClass(errors.percentageValue))}

@@ -28,7 +28,7 @@ export function CreateCouponCodePage() {
       description="Create a discount code that customers can use when booking shipments."
       backTo="/coupon-codes"
       backLabel="Back to Coupon Codes"
-      submitLabel="Validate coupon code"
+      submitLabel="Generate coupon code"
       onSubmit={handleSubmit}
       onCancel={goBack}
     />

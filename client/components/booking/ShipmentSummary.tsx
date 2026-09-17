@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { sanitizeDecimalInput, sanitizeIntegerInput, sanitizePhoneInput } from "@/lib/numericInput";
 import {
   Select,
   SelectContent,
@@ -111,9 +112,10 @@ export function ShipmentSummary() {
             id="parcel-weight"
             inputMode="decimal"
             value={String(cart.parcelWeightKg)}
-            onChange={(event) =>
-              updateCart({ parcelWeightKg: Number(event.target.value) || 0 })
-            }
+            onChange={(event) => {
+              const next = sanitizeDecimalInput(event.target.value);
+              updateCart({ parcelWeightKg: next === "" || next === "." ? 0 : Number(next) || 0 });
+            }}
           />
         </div>
 
@@ -123,7 +125,10 @@ export function ShipmentSummary() {
             id="subtotal"
             inputMode="decimal"
             value={String(cart.subtotal)}
-            onChange={(event) => updateCart({ subtotal: Number(event.target.value) || 0 })}
+            onChange={(event) => {
+              const next = sanitizeDecimalInput(event.target.value);
+              updateCart({ subtotal: next === "" || next === "." ? 0 : Number(next) || 0 });
+            }}
           />
         </div>
 
@@ -133,7 +138,10 @@ export function ShipmentSummary() {
             id="delivery-fee"
             inputMode="decimal"
             value={String(cart.deliveryFee)}
-            onChange={(event) => updateCart({ deliveryFee: Number(event.target.value) || 0 })}
+            onChange={(event) => {
+              const next = sanitizeDecimalInput(event.target.value);
+              updateCart({ deliveryFee: next === "" || next === "." ? 0 : Number(next) || 0 });
+            }}
           />
         </div>
 
@@ -143,7 +151,10 @@ export function ShipmentSummary() {
             id="tax-amount"
             inputMode="decimal"
             value={String(cart.taxAmount)}
-            onChange={(event) => updateCart({ taxAmount: Number(event.target.value) || 0 })}
+            onChange={(event) => {
+              const next = sanitizeDecimalInput(event.target.value);
+              updateCart({ taxAmount: next === "" || next === "." ? 0 : Number(next) || 0 });
+            }}
           />
         </div>
 
@@ -154,7 +165,7 @@ export function ShipmentSummary() {
             type="tel"
             inputMode="tel"
             value={cart.customerPhone}
-            onChange={(event) => updateCart({ customerPhone: event.target.value })}
+            onChange={(event) => updateCart({ customerPhone: sanitizePhoneInput(event.target.value) })}
           />
         </div>
 
@@ -164,9 +175,10 @@ export function ShipmentSummary() {
             id="shipment-history"
             inputMode="numeric"
             value={String(cart.completedShipmentCount)}
-            onChange={(event) =>
-              updateCart({ completedShipmentCount: Number(event.target.value) || 0 })
-            }
+            onChange={(event) => {
+              const next = sanitizeIntegerInput(event.target.value);
+              updateCart({ completedShipmentCount: next === "" ? 0 : Number(next) });
+            }}
           />
         </div>
       </div>

@@ -1,10 +1,20 @@
 import { useMemo, useState } from "react";
-import { Check, Search } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SAMPLE_CUSTOMER_PHONES } from "@/data/customerPhones";
 import { cn } from "@/lib/utils";
+
+const ROW_OPTIONS = [2, 5, 10, 20] as const;
+const DEFAULT_PAGE_SIZE = 2;
 
 interface ChoosePhoneNumberDialogProps {
   open: boolean;
@@ -36,6 +46,8 @@ export function ChoosePhoneNumberDialog({
 }: ChoosePhoneNumberDialogProps) {
   const [picked, setPicked] = useState<string[]>([]);
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
   const available = useMemo(
     () =>
@@ -50,6 +62,13 @@ export function ChoosePhoneNumberDialog({
     [available, query],
   );
 
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pageStart = (currentPage - 1) * pageSize;
+  const pageItems = filtered.slice(pageStart, pageStart + pageSize);
+  const rangeStart = filtered.length === 0 ? 0 : pageStart + 1;
+  const rangeEnd = Math.min(pageStart + pageSize, filtered.length);
+
   const toggle = (phone: string) => {
     setPicked((current) =>
       current.some((item) => phonesMatch(item, phone))
@@ -58,17 +77,22 @@ export function ChoosePhoneNumberDialog({
     );
   };
 
-  const handleClose = () => {
+  const resetLocalState = () => {
     setPicked([]);
     setQuery("");
+    setPage(1);
+    setPageSize(DEFAULT_PAGE_SIZE);
+  };
+
+  const handleClose = () => {
+    resetLocalState();
     onClose();
   };
 
   const handleAdd = () => {
     if (picked.length === 0) return;
     onAdd(picked);
-    setPicked([]);
-    setQuery("");
+    resetLocalState();
     onClose();
   };
 
@@ -88,7 +112,10 @@ export function ChoosePhoneNumberDialog({
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setPage(1);
+          }}
           placeholder="Search by name or phone number"
           autoComplete="off"
           className="pl-9"
@@ -96,10 +123,10 @@ export function ChoosePhoneNumberDialog({
       </div>
 
       <ul className="mt-3 divide-y rounded-lg border">
-        {filtered.length === 0 ? (
+        {pageItems.length === 0 ? (
           <li className="px-3 py-6 text-center text-body-sm text-muted-foreground">{emptyMessage}</li>
         ) : (
-          filtered.map((customer) => {
+          pageItems.map((customer) => {
             const checked = picked.some((phone) => phonesMatch(phone, customer.phone));
             return (
               <li key={customer.phone}>
@@ -131,6 +158,62 @@ export function ChoosePhoneNumberDialog({
           })
         )}
       </ul>
+
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-caption-sm text-muted-foreground">
+          Showing {rangeStart}-{rangeEnd} of {filtered.length}
+        </p>
+        <div className="flex items-center justify-between gap-2 sm:justify-end">
+          <label className="flex items-center gap-2 text-caption-sm text-muted-foreground">
+            Rows
+            <Select
+              value={String(pageSize)}
+              onValueChange={(value) => {
+                setPageSize(Number(value));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger
+                aria-label="Rows per page"
+                className="h-8 w-[4.5rem] px-2"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[90]">
+                {ROW_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={String(option)}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 px-2"
+              disabled={currentPage <= 1 || filtered.length === 0}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 px-2"
+              disabled={currentPage >= pageCount || filtered.length === 0}
+              onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
         <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={handleClose}>

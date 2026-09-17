@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { sanitizeDecimalInput } from "@/lib/numericInput";
 import { cn } from "@/lib/utils";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
 import { ChoosePhoneNumberDialog } from "./ChoosePhoneNumberDialog";
@@ -65,7 +66,7 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
                 id="min-weight"
                 inputMode="decimal"
                 value={values.minWeightKg}
-                onChange={(event) => onChange({ minWeightKg: event.target.value })}
+                onChange={(event) => onChange({ minWeightKg: sanitizeDecimalInput(event.target.value) })}
                 placeholder="5"
                 className={cn("pr-10", fieldInputClass(errors.minWeightKg))}
               />
@@ -85,7 +86,7 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
                 id="max-weight"
                 inputMode="decimal"
                 value={values.maxWeightKg}
-                onChange={(event) => onChange({ maxWeightKg: event.target.value })}
+                onChange={(event) => onChange({ maxWeightKg: sanitizeDecimalInput(event.target.value) })}
                 placeholder="12"
                 className={cn("pr-10", fieldInputClass(errors.maxWeightKg))}
               />

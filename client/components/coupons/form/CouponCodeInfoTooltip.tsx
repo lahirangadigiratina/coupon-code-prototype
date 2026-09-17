@@ -75,10 +75,13 @@ export function CouponCodeInfoTooltip() {
           </p>
           <p className="mt-2.5 text-caption font-semibold text-foreground">Example</p>
           <p className="mt-1 font-medium tracking-wide text-caption-sm text-foreground">
-            PLS-WELC10
+            PLS-SAVE25
           </p>
           <p className="mt-2.5 text-caption-sm text-muted-foreground">
             The prefix is generated automatically. You enter the rest of the code.
+          </p>
+          <p className="mt-2.5 text-caption-sm text-muted-foreground">
+            You cannot type L, O, l, o, 0, or 1. Those characters are blocked so the code is not confused with similar letters and numbers.
           </p>
         </div>
       ) : null}

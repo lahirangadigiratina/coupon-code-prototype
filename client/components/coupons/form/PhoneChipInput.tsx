@@ -1,6 +1,7 @@
 import { useState, type KeyboardEvent } from "react";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { sanitizePhoneInput } from "@/lib/numericInput";
 import { cn } from "@/lib/utils";
 
 interface PhoneChipInputProps {
@@ -72,7 +73,7 @@ export function PhoneChipInput({ id, value, onChange }: PhoneChipInputProps) {
         type="tel"
         inputMode="tel"
         value={draft}
-        onChange={(event) => setDraft(event.target.value)}
+        onChange={(event) => setDraft(sanitizePhoneInput(event.target.value))}
         onKeyDown={handleKeyDown}
         placeholder={value.length === 0 ? "Enter phone number" : "Add another"}
         autoComplete="off"

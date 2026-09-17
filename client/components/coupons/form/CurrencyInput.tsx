@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { sanitizeDecimalInput } from "@/lib/numericInput";
 import { cn } from "@/lib/utils";
 import { fieldInputClass } from "./FormField";
 
@@ -28,7 +29,7 @@ export function CurrencyInput({
         id={id}
         inputMode="decimal"
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => onChange(sanitizeDecimalInput(event.target.value))}
         placeholder={placeholder}
         aria-invalid={Boolean(error)}
         disabled={disabled}

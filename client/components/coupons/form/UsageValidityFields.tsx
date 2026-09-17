@@ -11,6 +11,7 @@ import {
   FREQUENCY_PERIOD_LABELS,
   type FrequencyPeriod,
 } from "@/types/coupon";
+import { sanitizeIntegerInput } from "@/lib/numericInput";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
 import { CurrencyInput } from "./CurrencyInput";
 import { DateRangeInput } from "./DateInput";
@@ -96,7 +97,7 @@ export function UsageValidityFields({
                 id="usage-limit-custom"
                 inputMode="numeric"
                 value={values.usageLimit === "0" ? "" : values.usageLimit}
-                onChange={(event) => onChange({ usageLimit: event.target.value })}
+                onChange={(event) => onChange({ usageLimit: sanitizeIntegerInput(event.target.value) })}
                 placeholder="500"
                 aria-invalid={Boolean(errors.usageLimit)}
                 className={fieldInputClass(errors.usageLimit)}
@@ -108,7 +109,7 @@ export function UsageValidityFields({
             id="usage-limit"
             inputMode="numeric"
             value={values.usageLimit}
-            onChange={(event) => onChange({ usageLimit: event.target.value })}
+            onChange={(event) => onChange({ usageLimit: sanitizeIntegerInput(event.target.value) })}
             placeholder="500"
             aria-invalid={Boolean(errors.usageLimit)}
             className={fieldInputClass(errors.usageLimit)}
@@ -178,7 +179,7 @@ export function UsageValidityFields({
             id="frequency-limit"
             inputMode="numeric"
             value={values.frequencyLimit}
-            onChange={(event) => onChange({ frequencyLimit: event.target.value })}
+            onChange={(event) => onChange({ frequencyLimit: sanitizeIntegerInput(event.target.value) })}
             placeholder="1"
             aria-invalid={Boolean(errors.frequencyLimit)}
             className={fieldInputClass(errors.frequencyLimit)}
