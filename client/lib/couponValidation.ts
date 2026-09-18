@@ -19,6 +19,8 @@ export type CouponValidationErrorCode =
   | "invalid_code"
   | "expired"
   | "not_yet_valid"
+  | "deactivated"
+  | "draft"
   | "usage_limit"
   | "amount_limit"
   | "already_applied"
@@ -50,6 +52,8 @@ export const COUPON_VALIDATION_MESSAGES = {
   invalid_code: "This coupon code is not valid.",
   expired: "This coupon has expired.",
   not_yet_valid: "This coupon is not valid yet.",
+  deactivated: "This coupon has been deactivated.",
+  draft: "This coupon is a draft and has not been published.",
   usage_limit: "This coupon has reached its usage limit.",
   amount_limit: "This coupon's discount limit has been reached.",
   already_applied: "Only one coupon can be applied to a shipment.",
@@ -70,6 +74,14 @@ export function validateCouponForCart(
 
   if (cart.appliedCouponCode && cart.appliedCouponCode.toUpperCase() !== coupon.code.toUpperCase()) {
     return fail("already_applied", COUPON_VALIDATION_MESSAGES.already_applied);
+  }
+
+  if (getEffectiveCouponStatus(coupon) === "deactivated") {
+    return fail("deactivated", COUPON_VALIDATION_MESSAGES.deactivated);
+  }
+
+  if (getEffectiveCouponStatus(coupon) === "draft") {
+    return fail("draft", COUPON_VALIDATION_MESSAGES.draft);
   }
 
   if (isCouponExpired(coupon.expiryDate) || getEffectiveCouponStatus(coupon) === "expired") {

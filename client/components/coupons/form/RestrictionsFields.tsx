@@ -128,6 +128,7 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
           id="customer-phone"
           value={values.customerPhones}
           onChange={(customerPhones) => onChange({ customerPhones })}
+          onAdd={() => setPhonePickerOpen(true)}
         />
       </FormField>
       <ChoosePhoneNumberDialog

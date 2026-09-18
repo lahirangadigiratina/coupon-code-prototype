@@ -6,7 +6,7 @@ export function DiscountPreview({ values }: { values: CouponFormValues }) {
   if (!preview) return null;
 
   return (
-    <div className="mt-3 rounded-lg border border-dashed bg-white px-3 py-2 text-sm text-muted-foreground">
+    <div className="min-w-0 flex-1 rounded-lg border border-dashed bg-white px-3 py-2 text-sm text-muted-foreground sm:mr-4">
       <span className="font-medium text-foreground">{preview}</span>
       <span> given per user.</span>
     </div>

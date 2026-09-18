@@ -61,6 +61,7 @@ export function CouponDetailsFields({
             label="Discount percentage"
             required
             error={errors.percentageValue}
+            hint="Enter a discount between 0% and 100%. Decimals are allowed."
           >
             <div className="relative">
               <Input

@@ -1,7 +1,14 @@
 export const COUPON_TYPES = ["percentage_off", "fixed_amount_off", "volume_discount"] as const;
 export type CouponType = (typeof COUPON_TYPES)[number];
 
-export const COUPON_STATUSES = ["active", "exhausted", "expired", "scheduled"] as const;
+export const COUPON_STATUSES = [
+  "draft",
+  "scheduled",
+  "active",
+  "expired",
+  "exhausted",
+  "deactivated",
+] as const;
 export type CouponStatus = (typeof COUPON_STATUSES)[number];
 
 export const COUPON_TYPE_LABELS: Record<CouponType, string> = {
@@ -39,10 +46,21 @@ export const DISCOUNT_BASIS_LABELS: Record<DiscountBasis, string> = {
 };
 
 export const COUPON_STATUS_LABELS: Record<CouponStatus, string> = {
-  active: "Active",
-  exhausted: "Exhausted",
-  expired: "Expired",
+  draft: "Draft",
   scheduled: "Scheduled",
+  active: "Active",
+  expired: "Expired",
+  exhausted: "Exhausted",
+  deactivated: "Deactivated",
+};
+
+export const COUPON_STATUS_COLORS: Record<CouponStatus, { background: string; text: string }> = {
+  draft: { background: "#F1F5F9", text: "#64748B" },
+  scheduled: { background: "#DBEAFE", text: "#2563EB" },
+  active: { background: "#DCFCE7", text: "#16A34A" },
+  expired: { background: "#FEE2E2", text: "#DC2626" },
+  exhausted: { background: "#FFEDD5", text: "#C2410C" },
+  deactivated: { background: "#E2E8F0", text: "#334155" },
 };
 
 export const COUPON_LOG_ACTIONS = [

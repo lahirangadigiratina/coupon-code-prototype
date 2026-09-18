@@ -21,6 +21,8 @@ export function formatCouponDateRange(coupon: Coupon): string {
 }
 
 export function getEffectiveCouponStatus(coupon: Coupon): CouponStatus {
+  if (coupon.status === "deactivated") return "deactivated";
+  if (coupon.status === "draft") return "draft";
   if (isCouponExpired(coupon.expiryDate)) return "expired";
   if (isUsageLimitReached(coupon) || isAmountLimitReached(coupon)) return "exhausted";
   if (isCouponNotYetValid(coupon.startDate)) return "scheduled";
@@ -44,6 +46,8 @@ export function isCouponUnavailable(coupon: Coupon): boolean {
 export function getUnavailableLabel(coupon: Coupon): string | null {
   const status = getEffectiveCouponStatus(coupon);
   if (status === "expired") return "This coupon has expired.";
+  if (status === "deactivated") return "This coupon has been deactivated.";
+  if (status === "draft") return "This coupon is a draft and has not been published.";
   if (status === "scheduled") return "This coupon is scheduled and is not valid yet.";
   if (status === "exhausted") {
     if (isUsageLimitReached(coupon)) return "Usage limit reached.";

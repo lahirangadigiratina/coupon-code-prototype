@@ -1,11 +1,17 @@
 import { useMemo, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { SAMPLE_CUSTOMER_PHONES } from "@/data/customerPhones";
 import { sanitizeIntegerInput } from "@/lib/numericInput";
-import { cn } from "@/lib/utils";
+
+const PAGE_SIZE = 10;
+
+const pagerControlClass =
+  "inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-white p-0 text-sm font-medium text-neutral-800 shadow-none hover:bg-neutral-50 disabled:pointer-events-none disabled:opacity-40";
+const pagerActiveClass =
+  "inline-flex size-8 shrink-0 items-center justify-center rounded-md border-transparent bg-neutral-950 p-0 text-sm font-medium text-white shadow-none hover:bg-neutral-950";
 
 function pageButtons(current: number, total: number): Array<number | "ellipsis"> {
   if (total <= 0) return [];
@@ -30,78 +36,39 @@ function pageButtons(current: number, total: number): Array<number | "ellipsis">
   return items;
 }
 
-const PAGE_SIZE = 10;
-
-const pagerControlClass =
-  "inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-white p-0 text-sm font-medium text-neutral-800 shadow-none hover:bg-neutral-50 disabled:pointer-events-none disabled:opacity-40";
-const pagerActiveClass =
-  "inline-flex size-8 shrink-0 items-center justify-center rounded-md border-transparent bg-neutral-950 p-0 text-sm font-medium text-white shadow-none hover:bg-neutral-950";
-
-interface ChoosePhoneNumberDialogProps {
-  open: boolean;
-  selectedPhones: string[];
-  onClose: () => void;
-  onAdd: (phones: string[]) => void;
-}
-
 function phonesMatch(left: string, right: string): boolean {
   return left.replace(/\s/g, "") === right.replace(/\s/g, "");
 }
 
-function SquareCheckbox({
-  checked,
-  disabled,
-}: {
-  checked?: boolean;
-  disabled?: boolean;
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex size-[18px] shrink-0 items-center justify-center rounded-[5px] border-[1.5px] border-neutral-700 bg-background",
-        checked && "border-foreground bg-foreground text-background",
-        disabled && "opacity-40",
-      )}
-      aria-hidden
-    >
-      {checked ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
-    </span>
-  );
+function customerName(phone: string): string {
+  return SAMPLE_CUSTOMER_PHONES.find((customer) => phonesMatch(customer.phone, phone))?.name ?? "Added number";
 }
 
-function matchesSearch(name: string, phone: string, query: string): boolean {
-  const term = query.trim().toLowerCase();
-  if (!term) return true;
-  const compactTerm = term.replace(/\s/g, "");
-  return (
-    name.toLowerCase().includes(term) ||
-    phone.toLowerCase().includes(term) ||
-    phone.replace(/\s/g, "").includes(compactTerm)
-  );
+interface SelectedPhonesDialogProps {
+  open: boolean;
+  phones: string[];
+  onClose: () => void;
+  onChange: (phones: string[]) => void;
 }
 
-export function ChoosePhoneNumberDialog({
+export function SelectedPhonesDialog({
   open,
-  selectedPhones,
+  phones,
   onClose,
-  onAdd,
-}: ChoosePhoneNumberDialogProps) {
-  const [picked, setPicked] = useState<string[]>([]);
+  onChange,
+}: SelectedPhonesDialogProps) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
 
-  const available = useMemo(
-    () =>
-      SAMPLE_CUSTOMER_PHONES.filter(
-        (customer) => !selectedPhones.some((phone) => phonesMatch(phone, customer.phone)),
-      ),
-    [selectedPhones],
-  );
-
-  const filtered = useMemo(
-    () => available.filter((customer) => matchesSearch(customer.name, customer.phone, query)),
-    [available, query],
-  );
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    const compact = term.replace(/\s/g, "");
+    return phones.filter((phone) => {
+      if (!term) return true;
+      const name = customerName(phone).toLowerCase();
+      return name.includes(term) || phone.toLowerCase().includes(term) || phone.replace(/\s/g, "").includes(compact);
+    });
+  }, [phones, query]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -109,57 +76,16 @@ export function ChoosePhoneNumberDialog({
   const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
   const rangeStart = filtered.length === 0 ? 0 : pageStart + 1;
   const rangeEnd = Math.min(pageStart + PAGE_SIZE, filtered.length);
-  const allPagePicked =
-    pageItems.length > 0 &&
-    pageItems.every((customer) => picked.some((phone) => phonesMatch(phone, customer.phone)));
-
-  const toggle = (phone: string) => {
-    setPicked((current) =>
-      current.some((item) => phonesMatch(item, phone))
-        ? current.filter((item) => !phonesMatch(item, phone))
-        : [...current, phone],
-    );
-  };
-
-  const togglePage = () => {
-    setPicked((current) => {
-      if (allPagePicked) {
-        return current.filter(
-          (phone) => !pageItems.some((customer) => phonesMatch(phone, customer.phone)),
-        );
-      }
-      const next = [...current];
-      for (const customer of pageItems) {
-        if (!next.some((phone) => phonesMatch(phone, customer.phone))) {
-          next.push(customer.phone);
-        }
-      }
-      return next;
-    });
-  };
-
-  const resetLocalState = () => {
-    setPicked([]);
-    setQuery("");
-    setPage(1);
-  };
 
   const handleClose = () => {
-    resetLocalState();
+    setQuery("");
+    setPage(1);
     onClose();
   };
 
-  const handleAdd = () => {
-    if (picked.length === 0) return;
-    onAdd(picked);
-    resetLocalState();
-    onClose();
+  const removePhone = (phone: string) => {
+    onChange(phones.filter((item) => !phonesMatch(item, phone)));
   };
-
-  const emptyMessage =
-    available.length === 0
-      ? "All listed phone numbers are already added."
-      : "No matching phone numbers.";
 
   return (
     <Dialog
@@ -168,11 +94,10 @@ export function ChoosePhoneNumberDialog({
       className="flex max-h-[90dvh] max-w-3xl flex-col overflow-hidden"
     >
       <div className="shrink-0">
-        <h2 className="text-h3">Choose phone number</h2>
+        <h2 className="text-h3">Phone numbers</h2>
         <p className="mt-2 text-body-sm text-muted-foreground">
-          Select customer phone numbers to restrict this coupon.
+          All phone numbers added to this coupon.
         </p>
-
         <div className="relative mt-4">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -189,57 +114,39 @@ export function ChoosePhoneNumberDialog({
       </div>
 
       <div className="mt-3 min-h-0 overflow-hidden rounded-lg border">
-        <div className="flex items-center gap-3 border-b px-3 py-2.5">
-          <button
-            type="button"
-            className="flex shrink-0 items-center justify-center"
-            onClick={togglePage}
-            disabled={pageItems.length === 0}
-            aria-label={allPagePicked ? "Clear selection on this page" : "Select all on this page"}
-          >
-            <SquareCheckbox
-              checked={allPagePicked}
-              disabled={pageItems.length === 0}
-            />
-          </button>
-          <p className="text-sm text-muted-foreground">
-            {picked.length} of {filtered.length} customers
-          </p>
-        </div>
-
         <div className="max-h-[410px] overflow-y-auto">
           <table className="w-full table-fixed text-left">
             <thead className="sticky top-0 z-10 bg-white">
               <tr className="border-b text-caption-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                <th className="w-10 px-3 py-2.5 font-semibold" aria-label="Select" />
                 <th className="px-3 py-2.5 font-semibold">Name</th>
                 <th className="px-3 py-2.5 font-semibold">Phone</th>
+                <th className="w-12 px-3 py-2.5 font-semibold" aria-label="Remove" />
               </tr>
             </thead>
             <tbody>
               {pageItems.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="px-3 py-8 text-center text-body-sm text-muted-foreground">
-                    {emptyMessage}
+                    {phones.length === 0 ? "No phone numbers added." : "No matching phone numbers."}
                   </td>
                 </tr>
               ) : (
-                pageItems.map((customer) => {
-                  const checked = picked.some((phone) => phonesMatch(phone, customer.phone));
-                  return (
-                    <tr
-                      key={customer.phone}
-                      className="cursor-pointer border-b last:border-b-0 hover:bg-neutral-50/80"
-                      onClick={() => toggle(customer.phone)}
-                    >
-                      <td className="w-10 px-3 py-2.5">
-                        <SquareCheckbox checked={checked} />
-                      </td>
-                      <td className="truncate px-3 py-2.5 text-sm font-semibold">{customer.name}</td>
-                      <td className="px-3 py-2.5 text-sm text-muted-foreground">{customer.phone}</td>
-                    </tr>
-                  );
-                })
+                pageItems.map((phone) => (
+                  <tr key={phone} className="border-b last:border-b-0">
+                    <td className="truncate px-3 py-2.5 text-sm font-semibold">{customerName(phone)}</td>
+                    <td className="px-3 py-2.5 text-sm text-muted-foreground">{phone}</td>
+                    <td className="px-3 py-2.5">
+                      <button
+                        type="button"
+                        aria-label={`Remove ${phone}`}
+                        className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-neutral-100 hover:text-foreground"
+                        onClick={() => removePhone(phone)}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -306,7 +213,6 @@ export function ChoosePhoneNumberDialog({
               <ChevronsRight className="h-4 w-4" />
             </button>
           </div>
-
           <label className="flex items-center gap-2 text-caption-sm text-muted-foreground">
             Go to
             <Input
@@ -329,17 +235,9 @@ export function ChoosePhoneNumberDialog({
         </div>
       </div>
 
-      <div className="mt-6 shrink-0 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
-        <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button
-          type="button"
-          className="w-full sm:w-auto"
-          disabled={picked.length === 0}
-          onClick={handleAdd}
-        >
-          Add selected
+      <div className="mt-6 flex shrink-0 justify-end">
+        <Button type="button" onClick={handleClose}>
+          Done
         </Button>
       </div>
     </Dialog>

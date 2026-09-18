@@ -3,11 +3,15 @@ import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { sanitizePhoneInput } from "@/lib/numericInput";
 import { cn } from "@/lib/utils";
+import { SelectedPhonesDialog } from "./SelectedPhonesDialog";
+
+const VISIBLE_CHIP_COUNT = 3;
 
 interface PhoneChipInputProps {
   id: string;
   value: string[];
   onChange: (phones: string[]) => void;
+  onAdd?: () => void;
 }
 
 function normalizePhone(raw: string): string {
@@ -18,28 +22,35 @@ function phonesMatch(left: string, right: string): boolean {
   return left.replace(/\s/g, "") === right.replace(/\s/g, "");
 }
 
-export function PhoneChipInput({ id, value, onChange }: PhoneChipInputProps) {
+export function PhoneChipInput({ id, value, onChange, onAdd }: PhoneChipInputProps) {
   const [draft, setDraft] = useState("");
+  const [moreOpen, setMoreOpen] = useState(false);
+  const visiblePhones = value.slice(0, VISIBLE_CHIP_COUNT);
+  const hiddenCount = Math.max(0, value.length - VISIBLE_CHIP_COUNT);
 
-  const addPhone = () => {
+  const addDraftPhone = () => {
     const next = normalizePhone(draft);
-    if (!next) return;
-    if (value.some((phone) => phonesMatch(phone, next))) {
-      setDraft("");
-      return;
+    if (!next) return false;
+    if (!value.some((phone) => phonesMatch(phone, next))) {
+      onChange([...value, next]);
     }
-    onChange([...value, next]);
     setDraft("");
+    return true;
   };
 
   const removePhone = (phone: string) => {
     onChange(value.filter((item) => item !== phone));
   };
 
+  const handleAddClick = () => {
+    if (addDraftPhone()) return;
+    onAdd?.();
+  };
+
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" || event.key === ",") {
       event.preventDefault();
-      addPhone();
+      addDraftPhone();
     }
     if (event.key === "Backspace" && !draft && value.length > 0) {
       removePhone(value[value.length - 1]);
@@ -47,49 +58,65 @@ export function PhoneChipInput({ id, value, onChange }: PhoneChipInputProps) {
   };
 
   return (
-    <div
-      className={cn(
-        "flex min-h-10 w-full flex-wrap items-center gap-2 rounded-md border border-input bg-background px-2 py-1.5 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-      )}
-    >
-      {value.map((phone) => (
-        <span
-          key={phone}
-          className="inline-flex max-w-full items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-caption-sm font-medium text-foreground"
-        >
-          <span className="truncate">{phone}</span>
+    <>
+      <div
+        className={cn(
+          "flex h-10 w-full flex-nowrap items-center gap-1.5 overflow-hidden rounded-md border border-input bg-background px-2 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+        )}
+      >
+        {visiblePhones.map((phone) => (
+          <span
+            key={phone}
+            className="inline-flex min-w-0 max-w-[7.25rem] shrink items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-caption-sm font-medium text-foreground"
+          >
+            <span className="truncate">{phone}</span>
+            <button
+              type="button"
+              aria-label={`Remove ${phone}`}
+              className="shrink-0 rounded-full p-0.5 text-muted-foreground hover:bg-background hover:text-foreground"
+              onClick={() => removePhone(phone)}
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        ))}
+        {hiddenCount > 0 && (
           <button
             type="button"
-            aria-label={`Remove ${phone}`}
-            className="rounded-full p-0.5 text-muted-foreground hover:bg-background hover:text-foreground"
-            onClick={() => removePhone(phone)}
+            className="shrink-0 text-caption-sm font-medium text-foreground underline-offset-4 hover:underline"
+            onClick={() => setMoreOpen(true)}
           >
-            <X className="h-3 w-3" />
+            +{hiddenCount} more
           </button>
-        </span>
-      ))}
-      <input
-        id={id}
-        type="tel"
-        inputMode="tel"
-        value={draft}
-        onChange={(event) => setDraft(sanitizePhoneInput(event.target.value))}
-        onKeyDown={handleKeyDown}
-        placeholder={value.length === 0 ? "Enter phone number" : "Add another"}
-        autoComplete="off"
-        className="min-w-[8rem] flex-1 bg-transparent py-1 text-sm outline-none placeholder:text-muted-foreground"
+        )}
+        <input
+          id={id}
+          type="tel"
+          inputMode="tel"
+          value={draft}
+          onChange={(event) => setDraft(sanitizePhoneInput(event.target.value))}
+          onKeyDown={handleKeyDown}
+          placeholder={value.length === 0 ? "Enter phone number" : "Add another"}
+          autoComplete="off"
+          className="min-w-0 flex-1 bg-transparent py-1 text-sm outline-none placeholder:text-muted-foreground"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-7 shrink-0 px-2"
+          onClick={handleAddClick}
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Add
+        </Button>
+      </div>
+      <SelectedPhonesDialog
+        open={moreOpen}
+        phones={value}
+        onClose={() => setMoreOpen(false)}
+        onChange={onChange}
       />
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="h-7 shrink-0 px-2"
-        disabled={!normalizePhone(draft)}
-        onClick={addPhone}
-      >
-        <Plus className="h-3.5 w-3.5" />
-        Add
-      </Button>
-    </div>
+    </>
   );
 }

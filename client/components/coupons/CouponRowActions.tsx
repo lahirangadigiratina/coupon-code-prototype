@@ -1,15 +1,17 @@
-import type { ElementType } from "react";
+import { useState, type ElementType } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, FileText, MoreHorizontal, Pencil } from "lucide-react";
+import { Ban, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { couponDetailsPath, couponEditPath, couponLogsPath } from "@/lib/couponPaths";
+import { useCoupons } from "@/context/CouponsContext";
+import { getEffectiveCouponStatus } from "@/lib/couponDisplay";
+import { couponEditPath } from "@/lib/couponPaths";
 import { cn } from "@/lib/utils";
 import type { Coupon } from "@/types/coupon";
 
@@ -27,30 +29,49 @@ interface ActionItem {
 
 export function CouponRowActions({ coupon }: CouponRowActionsProps) {
   const navigate = useNavigate();
+  const { updateCoupon } = useCoupons();
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false);
+  const status = getEffectiveCouponStatus(coupon);
+  const isActive = status === "active";
+  const canEdit = status === "draft" || status === "expired" || status === "exhausted";
 
-  const primaryActions: ActionItem[] = [
-    {
-      label: "View details",
-      icon: Eye,
-      iconClassName: "bg-sky-100 text-sky-700",
-      onClick: () => navigate(couponDetailsPath(coupon.code)),
-    },
-    {
+  const primaryActions: ActionItem[] = [];
+
+  if (canEdit) {
+    primaryActions.push({
       label: "Edit",
       icon: Pencil,
       iconClassName: "bg-amber-100 text-amber-700",
       onClick: () => navigate(couponEditPath(coupon.code)),
-    },
-  ];
+    });
+  }
 
-  const secondaryActions: ActionItem[] = [
-    {
-      label: "View logs",
-      icon: FileText,
-      iconClassName: "bg-violet-100 text-violet-700",
-      onClick: () => navigate(couponLogsPath(coupon.code)),
-    },
-  ];
+  if (isActive) {
+    primaryActions.push({
+      label: "Deactivate",
+      icon: Ban,
+      iconClassName: "bg-red-100 text-red-700",
+      destructive: true,
+      onClick: () => setConfirmDeactivate(true),
+    });
+  }
+
+  const handleDeactivate = () => {
+    updateCoupon(coupon.id, {
+      status: "deactivated",
+      logs: [
+        {
+          id: `log_${crypto.randomUUID()}`,
+          action: "deactivated",
+          timestamp: new Date().toISOString(),
+          actor: "Admin",
+          note: "Coupon deactivated",
+        },
+        ...coupon.logs,
+      ],
+    });
+    setConfirmDeactivate(false);
+  };
 
   const renderAction = (action: ActionItem) => {
     const Icon = action.icon;
@@ -76,6 +97,8 @@ export function CouponRowActions({ coupon }: CouponRowActionsProps) {
     );
   };
 
+  if (primaryActions.length === 0) return null;
+
   return (
     <>
       <DropdownMenu>
@@ -91,10 +114,23 @@ export function CouponRowActions({ coupon }: CouponRowActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44 p-1">
           <div className="space-y-0.5">{primaryActions.map(renderAction)}</div>
-          <DropdownMenuSeparator className="my-1" />
-          <div className="space-y-0.5">{secondaryActions.map(renderAction)}</div>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={confirmDeactivate} onClose={() => setConfirmDeactivate(false)}>
+        <h2 className="text-h3">Deactivate coupon</h2>
+        <p className="mt-2 text-body-sm text-muted-foreground">
+          {coupon.code} will be deactivated permanently and cannot be applied to bookings.
+        </p>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
+          <Button type="button" variant="outline" onClick={() => setConfirmDeactivate(false)}>
+            Cancel
+          </Button>
+          <Button type="button" variant="destructive" onClick={handleDeactivate}>
+            Deactivate
+          </Button>
+        </div>
+      </Dialog>
     </>
   );
 }

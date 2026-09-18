@@ -191,7 +191,6 @@ export function CouponForm({
         </Link>
         <h1 className="mt-4 text-h1">{title}</h1>
         <p className="mt-1 text-body-sm text-muted-foreground">{description}</p>
-        <DiscountPreview values={values} />
       </div>
 
       <div className="space-y-6">
@@ -240,13 +239,16 @@ export function CouponForm({
         )}
       </div>
 
-      <div className="sticky bottom-0 z-30 flex flex-col-reverse gap-3 border-t bg-neutral-50 py-4 sm:flex-row sm:items-center sm:justify-end">
-        <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" className="w-full sm:w-auto" disabled={!canCreate}>
-          {mode === "create" && codeSectionVisible ? "Save coupon" : submitLabel}
-        </Button>
+      <div className="sticky bottom-0 z-30 flex flex-col gap-3 border-t bg-neutral-50 py-4 sm:flex-row sm:items-center">
+        <DiscountPreview values={values} />
+        <div className="flex flex-col-reverse gap-3 sm:ml-auto sm:flex-row sm:items-center sm:justify-end">
+          <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" className="w-full sm:w-auto" disabled={!canCreate}>
+            {mode === "create" && codeSectionVisible ? "Save coupon" : submitLabel}
+          </Button>
+        </div>
       </div>
     </form>
   );

@@ -109,11 +109,9 @@ export function areMandatoryCouponFieldsFilled(
   if (values.type === "fixed_amount_off") {
     if (!values.usageLimitMode) return false;
     if (values.usageLimitMode === "custom" && !values.usageLimit.trim()) return false;
-  } else if (!values.usageLimit.trim()) {
+  } else   if (!values.usageLimit.trim()) {
     return false;
   }
-
-  if (!values.maxDiscountPerUser.trim()) return false;
 
   return true;
 }
@@ -276,9 +274,7 @@ export function validateCouponForm(
     }
   }
 
-  if (!values.maxDiscountPerUser.trim()) {
-    errors.maxDiscountPerUser = "Maximum discount value per user is required.";
-  } else {
+  if (values.maxDiscountPerUser.trim()) {
     const maxDiscountPerUser = parseNumber(values.maxDiscountPerUser);
     if (maxDiscountPerUser === null || maxDiscountPerUser <= 0) {
       errors.maxDiscountPerUser = "Maximum discount value per user must be greater than 0.";

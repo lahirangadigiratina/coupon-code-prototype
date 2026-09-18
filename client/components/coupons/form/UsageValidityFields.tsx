@@ -119,7 +119,7 @@ export function UsageValidityFields({
 
       <FormField
         id="amount-limit"
-        label="Amount exhausted"
+        label="Maximum allocated discount budget"
         hint={
           amountUsed
             ? `Discount already given: AUD $${amountUsed}. The coupon becomes unavailable when this amount is exhausted.`
@@ -139,7 +139,6 @@ export function UsageValidityFields({
       <FormField
         id="max-discount-per-user"
         label="Maximum discount value per user"
-        required
         hint="A single user cannot receive more than this discount amount."
         error={errors.maxDiscountPerUser}
       >
@@ -167,44 +166,53 @@ export function UsageValidityFields({
         />
       </FormField>
 
-      <FormField
-        id="frequency-limit"
-        label="Frequency"
-        className="md:col-span-2"
-        hint="Limits each customer’s coupon redemptions per day, week, or month. Resets at midnight, Monday, or the 1st. Limits apply per customer, not the entire coupon."
-        error={errors.frequencyLimit || errors.frequencyPeriod}
-      >
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Input
+      <div className="space-y-1.5 md:col-span-2">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <FormField
             id="frequency-limit"
-            inputMode="numeric"
-            value={values.frequencyLimit}
-            onChange={(event) => onChange({ frequencyLimit: sanitizeIntegerInput(event.target.value) })}
-            placeholder="1"
-            aria-invalid={Boolean(errors.frequencyLimit)}
-            className={fieldInputClass(errors.frequencyLimit)}
-          />
-          <Select
-            value={values.frequencyPeriod || undefined}
-            onValueChange={(value) => onChange({ frequencyPeriod: value as FrequencyPeriod })}
+            label="Frequency"
+            error={errors.frequencyLimit}
           >
-            <SelectTrigger
-              id="frequency-period"
-              className={fieldInputClass(errors.frequencyPeriod)}
-              aria-invalid={Boolean(errors.frequencyPeriod)}
+            <Input
+              id="frequency-limit"
+              inputMode="numeric"
+              value={values.frequencyLimit}
+              onChange={(event) => onChange({ frequencyLimit: sanitizeIntegerInput(event.target.value) })}
+              placeholder="1"
+              aria-invalid={Boolean(errors.frequencyLimit)}
+              className={fieldInputClass(errors.frequencyLimit)}
+            />
+          </FormField>
+          <FormField
+            id="frequency-period"
+            label="Period"
+            error={errors.frequencyPeriod}
+          >
+            <Select
+              value={values.frequencyPeriod || undefined}
+              onValueChange={(value) => onChange({ frequencyPeriod: value as FrequencyPeriod })}
             >
-              <SelectValue placeholder="Period" />
-            </SelectTrigger>
-            <SelectContent>
-              {FREQUENCY_PERIODS.map((period) => (
-                <SelectItem key={period} value={period}>
-                  Per {FREQUENCY_PERIOD_LABELS[period].toLowerCase()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <SelectTrigger
+                id="frequency-period"
+                className={fieldInputClass(errors.frequencyPeriod)}
+                aria-invalid={Boolean(errors.frequencyPeriod)}
+              >
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                {FREQUENCY_PERIODS.map((period) => (
+                  <SelectItem key={period} value={period}>
+                    Per {FREQUENCY_PERIOD_LABELS[period].toLowerCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
         </div>
-      </FormField>
+        <p className="text-caption-sm text-muted-foreground">
+          Limits each customer’s coupon redemptions per day, week, or month. Resets at midnight, Monday, or the 1st. Limits apply per customer, not the entire coupon.
+        </p>
+      </div>
     </div>
   );
 }

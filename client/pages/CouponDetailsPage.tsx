@@ -22,7 +22,7 @@ import {
   isUsageLimitReached,
 } from "@/lib/couponDisplay";
 import { formatFrequencyLimit } from "@/lib/couponFrequency";
-import { couponEditPath, couponLogsPath } from "@/lib/couponPaths";
+import { couponEditPath } from "@/lib/couponPaths";
 import { getCouponPhoneNumbers } from "@/lib/couponForm";
 import {
   formatCustomerTypeRestriction,
@@ -92,15 +92,14 @@ export function CouponDetailsPage() {
             )}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button className="gap-1.5" onClick={() => navigate(couponEditPath(coupon.code))}>
-            <Pencil className="h-4 w-4" />
-            Edit coupon
-          </Button>
-          <Button variant="outline" onClick={() => navigate(couponLogsPath(coupon.code))}>
-            View logs
-          </Button>
-        </div>
+        {status !== "active" && status !== "scheduled" && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button className="gap-1.5" onClick={() => navigate(couponEditPath(coupon.code))}>
+              <Pencil className="h-4 w-4" />
+              Edit coupon
+            </Button>
+          </div>
+        )}
       </div>
 
       <FormSection title="Coupon information">
@@ -208,7 +207,7 @@ export function CouponDetailsPage() {
           </div>
 
           <div>
-            <p className="text-caption-sm font-medium text-muted-foreground">Amount exhausted</p>
+            <p className="text-caption-sm font-medium text-muted-foreground">Maximum allocated discount budget</p>
             <p className="mt-1 text-sm font-semibold tabular-nums">
               {formatAmountUsage(coupon)}
               {isAmountLimitReached(coupon) ? " · exhausted" : ""}
@@ -283,16 +282,6 @@ export function CouponDetailsPage() {
             </div>
           </>
         )}
-        <div className="pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(couponLogsPath(coupon.code))}
-          >
-            View all logs
-          </Button>
-        </div>
       </FormSection>
     </div>
   );
