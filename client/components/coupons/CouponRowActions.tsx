@@ -1,6 +1,6 @@
 import { useState, type ElementType } from "react";
 import { useNavigate } from "react-router-dom";
-import { Ban, MoreHorizontal, Pencil } from "lucide-react";
+import { Ban, Copy, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import {
@@ -9,8 +9,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/toast";
 import { useCoupons } from "@/context/CouponsContext";
 import { getEffectiveCouponStatus } from "@/lib/couponDisplay";
+import { copyCouponAsDraft } from "@/lib/couponForm";
 import { couponEditPath } from "@/lib/couponPaths";
 import { cn } from "@/lib/utils";
 import type { Coupon } from "@/types/coupon";
@@ -29,11 +31,25 @@ interface ActionItem {
 
 export function CouponRowActions({ coupon }: CouponRowActionsProps) {
   const navigate = useNavigate();
-  const { updateCoupon } = useCoupons();
+  const { coupons, addCoupon, updateCoupon } = useCoupons();
+  const { showToast } = useToast();
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const status = getEffectiveCouponStatus(coupon);
-  const isActive = status === "active";
+  const canDeactivate = status === "active" || status === "scheduled";
   const canEdit = status === "draft" || status === "expired" || status === "exhausted";
+
+  const handleCopy = () => {
+    const copy = copyCouponAsDraft(
+      coupon,
+      coupons.map((item) => item.code),
+    );
+    addCoupon(copy);
+    showToast({
+      title: "Coupon copy created.",
+      description: `${copy.code} was added as a draft.`,
+    });
+    navigate(couponEditPath(copy.code));
+  };
 
   const primaryActions: ActionItem[] = [];
 
@@ -46,7 +62,14 @@ export function CouponRowActions({ coupon }: CouponRowActionsProps) {
     });
   }
 
-  if (isActive) {
+  primaryActions.push({
+    label: "Make a copy",
+    icon: Copy,
+    iconClassName: "bg-sky-100 text-sky-700",
+    onClick: handleCopy,
+  });
+
+  if (canDeactivate) {
     primaryActions.push({
       label: "Deactivate",
       icon: Ban,

@@ -1,4 +1,5 @@
 import {
+  generateUniqueCouponCode,
   getCouponCodeSuffix,
   normalizeCouponCodeInput,
   syncCouponCodePrefix,
@@ -361,6 +362,28 @@ function buildRestrictions(values: CouponFormValues): CouponRestrictions | undef
   }
 
   return Object.keys(restrictions).length > 0 ? restrictions : undefined;
+}
+
+export function copyCouponAsDraft(coupon: Coupon, existingCodes: string[]): Coupon {
+  return {
+    ...coupon,
+    id: `cpn_${crypto.randomUUID()}`,
+    code: generateUniqueCouponCode(coupon.type, existingCodes),
+    usageCount: 0,
+    amountUsed: 0,
+    redemptions: [],
+    status: "draft",
+    createdDate: todayIsoDate(),
+    logs: [
+      {
+        id: `log_${crypto.randomUUID()}`,
+        action: "created",
+        timestamp: new Date().toISOString(),
+        actor: "Admin",
+        note: "Coupon created via Copy",
+      },
+    ],
+  };
 }
 
 function todayIsoDate() {
