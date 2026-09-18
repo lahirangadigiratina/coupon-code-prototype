@@ -71,7 +71,7 @@ export function CouponDetailsFields({
                 onChange={(event) =>
                   onChange({ percentageValue: sanitizeDecimalInput(event.target.value) })
                 }
-                placeholder="10"
+                placeholder="10.5"
                 aria-invalid={Boolean(errors.percentageValue)}
                 className={cn("pr-9", fieldInputClass(errors.percentageValue))}
               />

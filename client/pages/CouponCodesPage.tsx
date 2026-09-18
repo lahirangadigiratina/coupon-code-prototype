@@ -39,7 +39,7 @@ import {
 const ALL = "all";
 const PAGE_SIZE = 10;
 const TABLE_GRID =
-  "grid grid-cols-[minmax(10rem,1.2fr)_minmax(8.5rem,1fr)_minmax(7rem,0.85fr)_minmax(8.5rem,1fr)_minmax(7rem,0.85fr)_minmax(8rem,1fr)_3.5rem] gap-x-6";
+  "grid grid-cols-[minmax(10rem,1.2fr)_minmax(8.5rem,1fr)_minmax(7rem,0.85fr)_minmax(8.5rem,1fr)_minmax(7rem,0.85fr)_minmax(8rem,1fr)_5.5rem] gap-x-6";
 
 const pagerControlClass =
   "inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-white p-0 text-sm font-medium text-neutral-800 shadow-none hover:bg-neutral-50 disabled:pointer-events-none disabled:opacity-40";
@@ -73,7 +73,11 @@ type TypeFilter = typeof ALL | CouponType;
 type StatusFilter = typeof ALL | CouponStatus;
 
 function CouponStatusCell({ coupon }: { coupon: Coupon }) {
-  return <CouponStatusBadge status={getEffectiveCouponStatus(coupon)} />;
+  return (
+    <div className="flex min-w-0 justify-center">
+      <CouponStatusBadge status={getEffectiveCouponStatus(coupon)} />
+    </div>
+  );
 }
 
 function TableStack({ title, subtitle }: { title: string; subtitle?: string }) {
@@ -250,7 +254,7 @@ export function CouponCodesPage() {
 
       <section className="flex min-h-0 flex-1 flex-col">
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white">
-          <div className="flex shrink-0 flex-col gap-3 border-b border-neutral-100 px-4 py-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex shrink-0 flex-col gap-3 border-b border-neutral-100 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative w-full lg:max-w-md">
               <Label htmlFor="coupon-search" className="sr-only">
                 Search coupon codes
@@ -268,9 +272,9 @@ export function CouponCodesPage() {
               />
             </div>
 
-            <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end lg:flex lg:w-auto lg:flex-wrap">
-              <div className="min-w-0 lg:w-[11.5rem]">
-                <Label htmlFor="type-filter" className="mb-1.5 block text-xs text-muted-foreground">
+            <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-center lg:flex lg:w-auto lg:flex-wrap">
+              <div className="flex min-w-0 items-center gap-2 lg:w-[14rem]">
+                <Label htmlFor="type-filter" className="shrink-0 text-xs text-muted-foreground">
                   Type
                 </Label>
                 <Select
@@ -294,8 +298,8 @@ export function CouponCodesPage() {
                 </Select>
               </div>
 
-              <div className="min-w-0 lg:w-[10.5rem]">
-                <Label htmlFor="status-filter" className="mb-1.5 block text-xs text-muted-foreground">
+              <div className="flex min-w-0 items-center gap-2 lg:w-[14rem]">
+                <Label htmlFor="status-filter" className="shrink-0 text-xs text-muted-foreground">
                   Status
                 </Label>
                 <Select
@@ -323,7 +327,7 @@ export function CouponCodesPage() {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="justify-self-start text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline sm:mb-2"
+                  className="justify-self-start text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                 >
                   Clear
                 </button>
@@ -341,77 +345,77 @@ export function CouponCodesPage() {
             </p>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-auto">
-          <div className="lg:hidden">
+          <div className="min-h-0 flex-1 overflow-auto lg:hidden">
             {filtered.length === 0
               ? emptyState
               : pageItems.map((coupon) => <CouponListCard key={coupon.id} coupon={coupon} />)}
           </div>
 
-          <div className="hidden overflow-x-auto lg:block">
-            <div className="min-w-[960px] px-1">
-              <div
-                className={cn(
-                  TABLE_GRID,
-                  "sticky top-0 z-10 border-b border-neutral-100 bg-white px-5 py-3 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-400",
-                )}
-              >
-                <span>Coupon code</span>
-                <span>Type</span>
-                <span>Discount</span>
-                <span>Validity</span>
-                <span>Usage</span>
-                <span>Status</span>
-                <span className="sr-only">Actions</span>
-              </div>
-
-              {filtered.length === 0
-                ? emptyState
-                : pageItems.map((coupon) => (
-                    <div
-                      key={coupon.id}
-                      role="link"
-                      tabIndex={0}
-                      className={cn(
-                        TABLE_GRID,
-                        "cursor-pointer items-start border-b border-neutral-100 px-5 py-5 last:border-b-0 hover:bg-neutral-50",
-                      )}
-                      onClick={() => navigate(couponDetailsPath(coupon.code))}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          navigate(couponDetailsPath(coupon.code));
-                        }
-                      }}
-                    >
-                      <CouponCodeCell
-                        code={coupon.code}
-                        subtitle={coupon.alias?.trim() || `Created ${formatDate(coupon.createdDate)}`}
-                      />
-                      <TableStack
-                        title={formatCouponType(coupon.type)}
-                        subtitle={DISCOUNT_BASIS_LABELS[coupon.discountBasis ?? "total_value"]}
-                      />
-                      <TableStack
-                        title={formatCouponDiscount(coupon.discount)}
-                        subtitle={discountSubtitle(coupon)}
-                      />
-                      <TableStack
-                        title={formatDate(coupon.startDate)}
-                        subtitle={formatDate(coupon.expiryDate)}
-                      />
-                      <TableStack title={formatUsage(coupon)} subtitle={usageSubtitle(coupon)} />
-                      <CouponStatusCell coupon={coupon} />
-                      <div
-                        className="flex justify-end pt-0.5"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        <CouponRowActions coupon={coupon} />
-                      </div>
-                    </div>
-                  ))}
+          <div className="hidden min-h-0 flex-1 flex-col lg:flex">
+            <div
+              className={cn(
+                TABLE_GRID,
+                "shrink-0 border-b border-neutral-100 bg-white px-6 py-3 text-xs font-medium uppercase tracking-[0.08em] text-neutral-500",
+              )}
+            >
+              <span>Coupon code</span>
+              <span>Type</span>
+              <span>Discount</span>
+              <span>Validity</span>
+              <span>Usage</span>
+              <span className="text-center">Status</span>
+              <span className="text-right">Actions</span>
             </div>
-          </div>
+
+            <div className="min-h-0 flex-1 overflow-auto">
+              <div className="min-w-[960px] px-1">
+                {filtered.length === 0
+                  ? emptyState
+                  : pageItems.map((coupon) => (
+                      <div
+                        key={coupon.id}
+                        role="link"
+                        tabIndex={0}
+                        className={cn(
+                          TABLE_GRID,
+                          "cursor-pointer items-start border-b border-neutral-100 px-5 py-5 last:border-b-0 hover:bg-neutral-50",
+                        )}
+                        onClick={() => navigate(couponDetailsPath(coupon.code))}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            navigate(couponDetailsPath(coupon.code));
+                          }
+                        }}
+                      >
+                        <CouponCodeCell
+                          code={coupon.code}
+                          subtitle={coupon.alias?.trim() || `Created ${formatDate(coupon.createdDate)}`}
+                        />
+                        <TableStack
+                          title={formatCouponType(coupon.type)}
+                          subtitle={DISCOUNT_BASIS_LABELS[coupon.discountBasis ?? "total_value"]}
+                        />
+                        <TableStack
+                          title={formatCouponDiscount(coupon.discount)}
+                          subtitle={discountSubtitle(coupon)}
+                        />
+                        <TableStack
+                          title={formatDate(coupon.startDate)}
+                          subtitle={formatDate(coupon.expiryDate)}
+                        />
+                        <TableStack title={formatUsage(coupon)} subtitle={usageSubtitle(coupon)} />
+                        <CouponStatusCell coupon={coupon} />
+                        <div
+                          className="flex justify-end pt-0.5"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <CouponRowActions coupon={coupon} />
+                        </div>
+                      </div>
+                    ))}
+              </div>
+            </div>
           </div>
 
           {filtered.length > 0 && (

@@ -141,7 +141,7 @@ export function CouponApplySection({ applied, onApplied, onRemoved }: CouponAppl
           </p>
         ) : (
           <p className="break-words text-caption-sm text-muted-foreground">
-            Try PC-WELC10, FL-FLAT5, VL-LOYAL, PC-EXPIRED, PC-LIMIT, PC-INACTIVE, or PC-ECONOMY.
+            Try PLS-WELC10, PLS-FLAT5, PLS-LOYAL, PLS-EXPIRED, PLS-LIMIT, PLS-OFF26, or PLS-ECONOMY.
           </p>
         )}
       </div>

@@ -3,7 +3,7 @@ import type { Coupon } from "@/types/coupon";
 export const SAMPLE_COUPONS: Coupon[] = [
   {
     id: "cpn_welc10",
-    code: "PC-WELC10",
+    code: "PLS-WELC10",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 10, maxAmount: 15, currency: "AUD" },
     startDate: "2026-01-01",
@@ -75,7 +75,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_flat5",
-    code: "FL-FLAT5",
+    code: "PLS-FLAT5",
     type: "fixed_amount_off",
     discount: { type: "fixed_amount_off", amount: 5, currency: "AUD" },
     startDate: "2026-01-01",
@@ -124,7 +124,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_loyal",
-    code: "VL-LOYAL",
+    code: "PLS-LOYAL",
     type: "volume_discount",
     discount: {
       type: "volume_discount",
@@ -165,7 +165,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_nday26",
-    code: "PC-NDAY26",
+    code: "PLS-NDAY26",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 15 },
     startDate: "2026-01-01",
@@ -214,7 +214,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_east26",
-    code: "PC-EAST26",
+    code: "PLS-EAST26",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 12 },
     startDate: "2026-01-01",
@@ -265,7 +265,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_expired",
-    code: "PC-EXPIRED",
+    code: "PLS-EXPIRED",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 20 },
     startDate: "2026-01-01",
@@ -293,7 +293,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_limit",
-    code: "PC-LIMIT",
+    code: "PLS-LIMIT",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 15 },
     startDate: "2026-01-01",
@@ -321,7 +321,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_scheduled",
-    code: "PC-SCHED26",
+    code: "PLS-SCHED26",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 10 },
     startDate: "2026-10-01",
@@ -342,7 +342,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_economy",
-    code: "PC-ECONOMY",
+    code: "PLS-ECONOMY",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 8 },
     startDate: "2026-01-01",
@@ -367,7 +367,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_amount",
-    code: "PC-AMOUNT",
+    code: "PLS-AMOUNT",
     type: "fixed_amount_off",
     discount: { type: "fixed_amount_off", amount: 10, currency: "AUD" },
     startDate: "2026-01-01",
@@ -397,7 +397,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_biz",
-    code: "PC-BIZ",
+    code: "PLS-BIZ",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 12 },
     startDate: "2026-01-01",
@@ -419,7 +419,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_min80",
-    code: "PC-MIN80",
+    code: "PLS-MIN80",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 10 },
     startDate: "2026-01-01",
@@ -441,7 +441,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_size",
-    code: "PC-SIZE",
+    code: "PLS-SIZE",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 7 },
     startDate: "2026-01-01",
@@ -463,7 +463,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_intl",
-    code: "PC-INTL",
+    code: "PLS-INTL",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 6 },
     startDate: "2026-01-01",
@@ -485,7 +485,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_draft",
-    code: "PC-DRAFT26",
+    code: "PLS-DRAFT26",
     type: "percentage_off",
     discount: { type: "percentage_off", value: 10 },
     startDate: "2026-10-01",
@@ -506,7 +506,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     id: "cpn_deactivated",
-    code: "PC-OFF26",
+    code: "PLS-OFF26",
     type: "fixed_amount_off",
     discount: { type: "fixed_amount_off", amount: 8, currency: "AUD" },
     startDate: "2026-01-01",

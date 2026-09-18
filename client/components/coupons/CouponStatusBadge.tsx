@@ -12,7 +12,7 @@ export function CouponStatusBadge({ status, className }: CouponStatusBadgeProps)
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[12px] font-semibold leading-none tracking-[0.01em]",
+        "inline-flex h-6 w-fit items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[12px] font-semibold leading-none tracking-[0.01em]",
         className,
       )}
       style={{
