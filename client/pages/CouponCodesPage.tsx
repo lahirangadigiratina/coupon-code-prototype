@@ -238,7 +238,7 @@ export function CouponCodesPage() {
   );
 
   return (
-    <div className="flex h-[calc(100dvh-8rem)] flex-col gap-6 overflow-hidden">
+    <div className="flex h-full min-h-0 flex-1 flex-col gap-6 overflow-hidden">
       <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-h1">Coupon Codes</h1>
@@ -338,15 +338,6 @@ export function CouponCodesPage() {
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col font-[Inter,system-ui,sans-serif]">
-          <div className="flex shrink-0 items-center justify-between border-b border-neutral-100 px-5 py-3.5">
-            <p className="text-[13px] font-normal text-neutral-500">
-              {filtered.length === 0
-                ? "0 coupon codes"
-                : `Showing ${rangeStart}–${rangeEnd} of ${filtered.length}`}
-              {filtersActive ? " match your filters" : ""}
-            </p>
-          </div>
-
           <div className="min-h-0 flex-1 overflow-auto lg:hidden">
             {filtered.length === 0
               ? emptyState
@@ -396,7 +387,6 @@ export function CouponCodesPage() {
                         />
                         <TableStack
                           title={formatCouponType(coupon.type)}
-                          subtitle={DISCOUNT_BASIS_LABELS[coupon.discountBasis ?? "total_value"]}
                         />
                         <TableStack
                           title={formatCouponDiscount(coupon.discount)}

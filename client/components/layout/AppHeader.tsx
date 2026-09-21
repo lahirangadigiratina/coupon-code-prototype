@@ -9,7 +9,7 @@ const navItems = [
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className="sticky top-0 z-40 shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-16 max-w-content items-center justify-between gap-6 px-6">
         <div className="flex min-w-0 items-center gap-4 md:gap-10">
           <BrandLogo />

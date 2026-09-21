@@ -188,7 +188,7 @@ export function CouponForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-      <div className="sticky top-16 z-30 -mx-6 border-b bg-neutral-50 px-6 pb-4 pt-2">
+      <div className="sticky top-0 z-30 -mx-6 border-b bg-neutral-50 px-6 pb-4 pt-2">
         <Link
           to={backTo}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"

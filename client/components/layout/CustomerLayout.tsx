@@ -3,8 +3,8 @@ import { BrandLogo } from "./BrandLogo";
 
 export function CustomerLayout() {
   return (
-    <div className="min-h-screen overflow-x-clip bg-neutral-50">
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
+    <div className="flex h-full flex-col overflow-hidden bg-neutral-50">
+      <header className="sticky top-0 z-40 shrink-0 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-content items-center justify-between gap-6 px-6">
           <div className="flex min-w-0 items-center gap-2.5">
             <BrandLogo />
@@ -21,7 +21,7 @@ export function CustomerLayout() {
           </Link>
         </div>
       </header>
-      <main className="mx-auto w-full min-w-0 max-w-content px-6 py-8">
+      <main className="mx-auto min-h-0 w-full min-w-0 max-w-content flex-1 overflow-y-auto px-6 py-8">
         <Outlet />
       </main>
     </div>
