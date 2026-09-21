@@ -42,7 +42,7 @@ export function CouponDetailsPage() {
       existingCoupon={coupon}
       currentCode={coupon.code}
       title="Coupon Details"
-      description={`View the discount, restrictions, and validity for ${coupon.code}.`}
+      description="Create a discount code that customers can use when booking shipments."
       headerExtra={<CouponStatusBadge status={status} />}
       backTo="/coupon-codes"
       backLabel="Back to Coupon Codes"

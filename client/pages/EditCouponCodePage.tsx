@@ -52,7 +52,7 @@ export function EditCouponCodePage() {
       existingCoupon={coupon}
       currentCode={coupon.code}
       title="Edit Coupon Code"
-      description={`Update the discount, restrictions, and validity for ${coupon.code}. The coupon code itself cannot be changed.`}
+      description={`Update the validity date for ${coupon.code}. The coupon code itself cannot be changed.`}
       backTo={detailsPath}
       backLabel="Back to Coupon Details"
       submitLabel="Save changes"
