@@ -12,6 +12,7 @@ import {
   type FrequencyPeriod,
 } from "@/types/coupon";
 import { sanitizeIntegerInput } from "@/lib/numericInput";
+import { cn } from "@/lib/utils";
 import type { CouponFormErrors, CouponFormValues } from "@/types/couponForm";
 import { CurrencyInput } from "./CurrencyInput";
 import { DateRangeInput } from "./DateInput";
@@ -26,6 +27,7 @@ const FIXED_USAGE_OPTIONS = [
 interface UsageValidityFieldsProps {
   values: CouponFormValues;
   errors: CouponFormErrors;
+  readOnly?: boolean;
   onChange: (patch: Partial<CouponFormValues>) => void;
   usageCount?: number;
   amountUsed?: number;
@@ -34,6 +36,7 @@ interface UsageValidityFieldsProps {
 export function UsageValidityFields({
   values,
   errors,
+  readOnly,
   onChange,
   usageCount,
   amountUsed,
@@ -77,11 +80,16 @@ export function UsageValidityFields({
           <div className="space-y-3">
             <Select
               value={values.usageLimitMode || undefined}
+              disabled={readOnly}
               onValueChange={(value) =>
                 handleUsageModeChange(value as CouponFormValues["usageLimitMode"])
               }
             >
-              <SelectTrigger id="usage-limit" aria-invalid={Boolean(errors.usageLimit)}>
+              <SelectTrigger
+                id="usage-limit"
+                aria-invalid={Boolean(errors.usageLimit)}
+                className={readOnly ? "disabled:cursor-default disabled:opacity-100" : undefined}
+              >
                 <SelectValue placeholder="Select usage limit" />
               </SelectTrigger>
               <SelectContent>
@@ -99,8 +107,9 @@ export function UsageValidityFields({
                 value={values.usageLimit === "0" ? "" : values.usageLimit}
                 onChange={(event) => onChange({ usageLimit: sanitizeIntegerInput(event.target.value) })}
                 placeholder="500"
+                readOnly={readOnly}
                 aria-invalid={Boolean(errors.usageLimit)}
-                className={fieldInputClass(errors.usageLimit)}
+                className={cn(fieldInputClass(errors.usageLimit), readOnly && "cursor-default")}
               />
             )}
           </div>
@@ -111,8 +120,9 @@ export function UsageValidityFields({
             value={values.usageLimit}
             onChange={(event) => onChange({ usageLimit: sanitizeIntegerInput(event.target.value) })}
             placeholder="500"
+            readOnly={readOnly}
             aria-invalid={Boolean(errors.usageLimit)}
-            className={fieldInputClass(errors.usageLimit)}
+            className={cn(fieldInputClass(errors.usageLimit), readOnly && "cursor-default")}
           />
         )}
       </FormField>
@@ -132,6 +142,7 @@ export function UsageValidityFields({
           value={values.amountLimit}
           onChange={(amountLimit) => onChange({ amountLimit })}
           placeholder="2000"
+          readOnly={readOnly}
           error={errors.amountLimit}
         />
       </FormField>
@@ -147,6 +158,7 @@ export function UsageValidityFields({
           value={values.maxDiscountPerUser}
           onChange={(maxDiscountPerUser) => onChange({ maxDiscountPerUser })}
           placeholder="50"
+          readOnly={readOnly}
           error={errors.maxDiscountPerUser}
         />
       </FormField>
@@ -163,6 +175,7 @@ export function UsageValidityFields({
           endDate={values.expiryDate}
           onChange={({ startDate, endDate }) => onChange({ startDate, expiryDate: endDate })}
           invalid={Boolean(errors.startDate || errors.expiryDate)}
+          readOnly={readOnly}
         />
       </FormField>
 
@@ -179,8 +192,9 @@ export function UsageValidityFields({
               value={values.frequencyLimit}
               onChange={(event) => onChange({ frequencyLimit: sanitizeIntegerInput(event.target.value) })}
               placeholder="1"
+              readOnly={readOnly}
               aria-invalid={Boolean(errors.frequencyLimit)}
-              className={fieldInputClass(errors.frequencyLimit)}
+              className={cn(fieldInputClass(errors.frequencyLimit), readOnly && "cursor-default")}
             />
           </FormField>
           <FormField
@@ -190,11 +204,15 @@ export function UsageValidityFields({
           >
             <Select
               value={values.frequencyPeriod || undefined}
+              disabled={readOnly}
               onValueChange={(value) => onChange({ frequencyPeriod: value as FrequencyPeriod })}
             >
               <SelectTrigger
                 id="frequency-period"
-                className={fieldInputClass(errors.frequencyPeriod)}
+                className={cn(
+                  fieldInputClass(errors.frequencyPeriod),
+                  readOnly && "disabled:cursor-default disabled:opacity-100",
+                )}
                 aria-invalid={Boolean(errors.frequencyPeriod)}
               >
                 <SelectValue placeholder="Select period" />

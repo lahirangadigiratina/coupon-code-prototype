@@ -10,6 +10,7 @@ const VISIBLE_CHIP_COUNT = 3;
 interface PhoneChipInputProps {
   id: string;
   value: string[];
+  readOnly?: boolean;
   onChange: (phones: string[]) => void;
   onAdd?: () => void;
 }
@@ -22,7 +23,7 @@ function phonesMatch(left: string, right: string): boolean {
   return left.replace(/\s/g, "") === right.replace(/\s/g, "");
 }
 
-export function PhoneChipInput({ id, value, onChange, onAdd }: PhoneChipInputProps) {
+export function PhoneChipInput({ id, value, readOnly, onChange, onAdd }: PhoneChipInputProps) {
   const [draft, setDraft] = useState("");
   const [moreOpen, setMoreOpen] = useState(false);
   const visiblePhones = value.slice(0, VISIBLE_CHIP_COUNT);
@@ -70,14 +71,16 @@ export function PhoneChipInput({ id, value, onChange, onAdd }: PhoneChipInputPro
             className="inline-flex min-w-0 max-w-[7.25rem] shrink items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-caption-sm font-medium text-foreground"
           >
             <span className="truncate">{phone}</span>
-            <button
-              type="button"
-              aria-label={`Remove ${phone}`}
-              className="shrink-0 rounded-full p-0.5 text-muted-foreground hover:bg-background hover:text-foreground"
-              onClick={() => removePhone(phone)}
-            >
-              <X className="h-3 w-3" />
-            </button>
+            {readOnly ? null : (
+              <button
+                type="button"
+                aria-label={`Remove ${phone}`}
+                className="shrink-0 rounded-full p-0.5 text-muted-foreground hover:bg-background hover:text-foreground"
+                onClick={() => removePhone(phone)}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </span>
         ))}
         {hiddenCount > 0 && (
@@ -98,18 +101,21 @@ export function PhoneChipInput({ id, value, onChange, onAdd }: PhoneChipInputPro
           onKeyDown={handleKeyDown}
           placeholder={value.length === 0 ? "Enter phone number" : "Add another"}
           autoComplete="off"
+          readOnly={readOnly}
           className="min-w-0 flex-1 bg-transparent py-1 text-sm outline-none placeholder:text-muted-foreground"
         />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 shrink-0 px-2"
-          onClick={handleAddClick}
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Add
-        </Button>
+        {readOnly ? null : (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-7 shrink-0 px-2"
+            onClick={handleAddClick}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add
+          </Button>
+        )}
       </div>
       <SelectedPhonesDialog
         open={moreOpen}

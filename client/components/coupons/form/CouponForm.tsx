@@ -23,18 +23,20 @@ import { RestrictionsFields } from "./RestrictionsFields";
 import { UsageValidityFields } from "./UsageValidityFields";
 
 interface CouponFormProps {
-  mode?: "create" | "edit";
+  mode?: "create" | "edit" | "view";
   initialValues?: CouponFormValues;
   existingCoupon?: Coupon;
   existingCodes?: string[];
   currentCode?: string;
-  submitLabel: string;
+  submitLabel?: string;
   title: string;
   description: ReactNode;
+  headerExtra?: ReactNode;
   backTo: string;
   backLabel: string;
-  onSubmit: (coupon: Coupon) => void;
+  onSubmit?: (coupon: Coupon) => void;
   onCancel: () => void;
+  onEdit?: () => void;
 }
 
 export function CouponForm({
@@ -43,22 +45,26 @@ export function CouponForm({
   existingCoupon,
   existingCodes = [],
   currentCode,
-  submitLabel,
+  submitLabel = "Save",
   title,
   description,
+  headerExtra,
   backTo,
   backLabel,
   onSubmit,
   onCancel,
+  onEdit,
 }: CouponFormProps) {
+  const readOnly = mode === "view";
   const [values, setValues] = useState<CouponFormValues>(
     () => initialValues ?? createDefaultCouponFormValues(),
   );
   const [errors, setErrors] = useState<CouponFormErrors>({});
-  const [codeSectionVisible, setCodeSectionVisible] = useState(mode === "edit");
-  const [codeValidated, setCodeValidated] = useState(mode === "edit");
+  const [codeSectionVisible, setCodeSectionVisible] = useState(mode !== "create");
+  const [codeValidated, setCodeValidated] = useState(mode !== "create");
 
   const updateValues = (patch: Partial<CouponFormValues>) => {
+    if (readOnly) return;
     if (mode === "create" && "code" in patch) {
       setCodeValidated(false);
     }
@@ -112,6 +118,7 @@ export function CouponForm({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (readOnly || !onSubmit) return;
     const revealingCode = mode === "create" && !codeSectionVisible;
     const nextErrors = validateCouponForm(values, {
       existingCodes,
@@ -189,7 +196,10 @@ export function CouponForm({
           <ArrowLeft className="h-4 w-4" />
           {backLabel}
         </Link>
-        <h1 className="mt-4 text-h1">{title}</h1>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <h1 className="text-h1">{title}</h1>
+          {headerExtra}
+        </div>
         <p className="mt-1 text-body-sm text-muted-foreground">{description}</p>
       </div>
 
@@ -198,13 +208,15 @@ export function CouponForm({
           <CouponDetailsFields
             values={values}
             errors={errors}
-            codeLocked
+            codeLocked={mode === "edit"}
+            readOnly={readOnly}
             onTypeChange={handleTypeChange}
             onChange={updateValues}
           />
           <DiscountFields
             values={values}
             errors={errors}
+            readOnly={readOnly}
             onAddTier={handleAddTier}
             onRemoveTier={handleRemoveTier}
             onTierChange={handleTierChange}
@@ -212,13 +224,19 @@ export function CouponForm({
         </FormSection>
 
         <FormSection title="Limit">
-          <RestrictionsFields values={values} errors={errors} onChange={updateValues} />
+          <RestrictionsFields
+            values={values}
+            errors={errors}
+            readOnly={readOnly}
+            onChange={updateValues}
+          />
         </FormSection>
 
         <FormSection title="Usage">
           <UsageValidityFields
             values={values}
             errors={errors}
+            readOnly={readOnly}
             onChange={updateValues}
             usageCount={existingCoupon?.usageCount}
             amountUsed={existingCoupon?.amountUsed}
@@ -230,7 +248,7 @@ export function CouponForm({
             <CouponCodeFields
               values={values}
               errors={errors}
-              codeLocked={mode === "edit"}
+              codeLocked={mode !== "create"}
               validated={codeValidated}
               onChange={updateValues}
               onValidate={handleValidateCode}
@@ -242,12 +260,27 @@ export function CouponForm({
       <div className="sticky bottom-0 z-30 flex flex-col gap-3 border-t bg-neutral-50 py-4 sm:flex-row sm:items-center">
         <DiscountPreview values={values} />
         <div className="flex flex-col-reverse gap-3 sm:ml-auto sm:flex-row sm:items-center sm:justify-end">
-          <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" className="w-full sm:w-auto" disabled={!canCreate}>
-            {mode === "create" && codeSectionVisible ? "Save coupon" : submitLabel}
-          </Button>
+          {readOnly ? (
+            <>
+              <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onCancel}>
+                Back
+              </Button>
+              {onEdit ? (
+                <Button type="button" className="w-full sm:w-auto" onClick={onEdit}>
+                  Edit coupon
+                </Button>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type="submit" className="w-full sm:w-auto" disabled={!canCreate}>
+                {mode === "create" && codeSectionVisible ? "Save coupon" : submitLabel}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </form>

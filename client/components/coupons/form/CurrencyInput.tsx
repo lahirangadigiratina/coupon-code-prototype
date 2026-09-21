@@ -10,6 +10,7 @@ interface CurrencyInputProps {
   placeholder?: string;
   error?: string;
   disabled?: boolean;
+  readOnly?: boolean;
 }
 
 export function CurrencyInput({
@@ -19,6 +20,7 @@ export function CurrencyInput({
   placeholder,
   error,
   disabled,
+  readOnly,
 }: CurrencyInputProps) {
   return (
     <div className="relative">
@@ -33,7 +35,8 @@ export function CurrencyInput({
         placeholder={placeholder}
         aria-invalid={Boolean(error)}
         disabled={disabled}
-        className={cn("pl-[4.25rem]", fieldInputClass(error))}
+        readOnly={readOnly}
+        className={cn("pl-[4.25rem]", fieldInputClass(error), readOnly && "cursor-default")}
       />
     </div>
   );

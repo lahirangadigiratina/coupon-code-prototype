@@ -15,6 +15,7 @@ import {
 interface StateMultiSelectProps {
   id: string;
   value: AustralianState[];
+  readOnly?: boolean;
   onChange: (states: AustralianState[]) => void;
 }
 
@@ -32,7 +33,7 @@ function CheckboxMark({ selected }: { selected: boolean }) {
   );
 }
 
-export function StateMultiSelect({ id, value, onChange }: StateMultiSelectProps) {
+export function StateMultiSelect({ id, value, readOnly, onChange }: StateMultiSelectProps) {
   const allStates = value.length === 0;
   const summary = allStates
     ? "All states"
@@ -46,6 +47,20 @@ export function StateMultiSelect({ id, value, onChange }: StateMultiSelectProps)
     }
     onChange(value.filter((item) => item !== state));
   };
+
+  if (readOnly) {
+    return (
+      <button
+        id={id}
+        type="button"
+        disabled
+        className="flex h-10 w-full cursor-default items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm opacity-100"
+      >
+        <span className="line-clamp-1 flex-1 text-left">{summary}</span>
+        <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+      </button>
+    );
+  }
 
   return (
     <DropdownMenu>

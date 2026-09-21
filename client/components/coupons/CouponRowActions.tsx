@@ -35,7 +35,7 @@ export function CouponRowActions({ coupon }: CouponRowActionsProps) {
   const { showToast } = useToast();
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const status = getEffectiveCouponStatus(coupon);
-  const canDeactivate = status === "active" || status === "scheduled";
+  const canDeactivate = status !== "deactivated";
   const canEdit = status === "draft" || status === "expired" || status === "exhausted";
 
   const handleCopy = () => {

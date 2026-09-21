@@ -9,6 +9,7 @@ import { FormField, fieldInputClass } from "./FormField";
 interface DiscountFieldsProps {
   values: CouponFormValues;
   errors: CouponFormErrors;
+  readOnly?: boolean;
   onAddTier: () => void;
   onRemoveTier: (id: string) => void;
   onTierChange: (id: string, patch: Partial<Omit<VolumeTierInput, "id">>) => void;
@@ -17,6 +18,7 @@ interface DiscountFieldsProps {
 export function DiscountFields({
   values,
   errors,
+  readOnly,
   onAddTier,
   onRemoveTier,
   onTierChange,
@@ -32,10 +34,12 @@ export function DiscountFields({
                 Discount is applied to the total cart cost once the shipment threshold is reached.
               </p>
             </div>
-            <Button type="button" variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto" onClick={onAddTier}>
-              <Plus className="h-3.5 w-3.5" />
-              Add tier
-            </Button>
+            {readOnly ? null : (
+              <Button type="button" variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto" onClick={onAddTier}>
+                <Plus className="h-3.5 w-3.5" />
+                Add tier
+              </Button>
+            )}
           </div>
 
           {errors.volumeTiersGeneral && (
@@ -70,8 +74,9 @@ export function DiscountFields({
                           onTierChange(tier.id, { minQuantity: sanitizeIntegerInput(event.target.value) })
                         }
                         placeholder="10"
+                        readOnly={readOnly}
                         aria-invalid={Boolean(tierError?.minQuantity)}
-                        className={cn("pr-8", fieldInputClass(tierError?.minQuantity))}
+                        className={cn("pr-8", fieldInputClass(tierError?.minQuantity), readOnly && "cursor-default")}
                       />
                       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-muted-foreground">
                         +
@@ -93,27 +98,30 @@ export function DiscountFields({
                           onTierChange(tier.id, { percentage: sanitizeDecimalInput(event.target.value) })
                         }
                         placeholder="5"
+                        readOnly={readOnly}
                         aria-invalid={Boolean(tierError?.percentage)}
-                        className={cn("pr-9", fieldInputClass(tierError?.percentage))}
+                        className={cn("pr-9", fieldInputClass(tierError?.percentage), readOnly && "cursor-default")}
                       />
                       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-muted-foreground">
                         %
                       </span>
                     </div>
                   </FormField>
-                  <div className={cn("flex justify-end", index === 0 && "md:pt-6")}>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10 text-muted-foreground hover:text-destructive"
-                      onClick={() => onRemoveTier(tier.id)}
-                      disabled={values.volumeTiers.length <= 1}
-                      aria-label={`Remove tier ${index + 1}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  {readOnly ? null : (
+                    <div className={cn("flex justify-end", index === 0 && "md:pt-6")}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10 text-muted-foreground hover:text-destructive"
+                        onClick={() => onRemoveTier(tier.id)}
+                        disabled={values.volumeTiers.length <= 1}
+                        aria-label={`Remove tier ${index + 1}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               );
             })}

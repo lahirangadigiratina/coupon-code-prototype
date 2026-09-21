@@ -155,7 +155,7 @@ export function SelectedPhonesDialog({
 
       <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-3">
         <p className="text-caption-sm text-muted-foreground">
-          Page {rangeStart}–{rangeEnd} of {filtered.length}
+          Showing {rangeStart}–{rangeEnd} of {filtered.length}
         </p>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <div className="flex items-center gap-2">

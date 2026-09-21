@@ -37,7 +37,8 @@ import {
 } from "@/types/coupon";
 
 const ALL = "all";
-const PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
 const TABLE_GRID =
   "grid grid-cols-[minmax(10rem,1.2fr)_minmax(8.5rem,1fr)_minmax(7rem,0.85fr)_minmax(8.5rem,1fr)_minmax(7rem,0.85fr)_minmax(8rem,1fr)_5.5rem] gap-x-6";
 
@@ -189,6 +190,7 @@ export function CouponCodesPage() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>(ALL);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(ALL);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
   const filtered = useMemo(() => {
     return coupons.filter((coupon) => {
@@ -200,12 +202,12 @@ export function CouponCodesPage() {
     });
   }, [coupons, query, typeFilter, statusFilter]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const pageStart = (currentPage - 1) * PAGE_SIZE;
-  const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+  const pageStart = (currentPage - 1) * pageSize;
+  const pageItems = filtered.slice(pageStart, pageStart + pageSize);
   const rangeStart = filtered.length === 0 ? 0 : pageStart + 1;
-  const rangeEnd = Math.min(pageStart + PAGE_SIZE, filtered.length);
+  const rangeEnd = Math.min(pageStart + pageSize, filtered.length);
 
   const filtersActive = query.trim().length > 0 || typeFilter !== ALL || statusFilter !== ALL;
 
@@ -340,7 +342,7 @@ export function CouponCodesPage() {
             <p className="text-[13px] font-normal text-neutral-500">
               {filtered.length === 0
                 ? "0 coupon codes"
-                : `Page ${rangeStart}–${rangeEnd} of ${filtered.length}`}
+                : `Showing ${rangeStart}–${rangeEnd} of ${filtered.length}`}
               {filtersActive ? " match your filters" : ""}
             </p>
           </div>
@@ -421,9 +423,33 @@ export function CouponCodesPage() {
           {filtered.length > 0 && (
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-neutral-100 px-5 py-3">
               <p className="text-[13px] text-neutral-500">
-                Page {rangeStart}–{rangeEnd} of {filtered.length}
+                Showing {rangeStart}–{rangeEnd} of {filtered.length}
               </p>
-              <div className="flex flex-wrap items-center justify-end gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <label className="flex items-center gap-2 text-[13px] text-neutral-500">
+                  Rows per page
+                  <Select
+                    value={String(pageSize)}
+                    onValueChange={(value) => {
+                      setPageSize(Number(value));
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger
+                      aria-label="Rows per page"
+                      className="h-8 w-[4.25rem] border-neutral-200 bg-white px-2 shadow-none"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAGE_SIZE_OPTIONS.map((size) => (
+                        <SelectItem key={size} value={String(size)}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </label>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"

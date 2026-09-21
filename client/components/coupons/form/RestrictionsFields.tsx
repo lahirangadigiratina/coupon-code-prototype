@@ -13,10 +13,11 @@ import { StateMultiSelect } from "./StateMultiSelect";
 interface RestrictionsFieldsProps {
   values: CouponFormValues;
   errors: CouponFormErrors;
+  readOnly?: boolean;
   onChange: (patch: Partial<CouponFormValues>) => void;
 }
 
-export function RestrictionsFields({ values, errors, onChange }: RestrictionsFieldsProps) {
+export function RestrictionsFields({ values, errors, readOnly, onChange }: RestrictionsFieldsProps) {
   const [phonePickerOpen, setPhonePickerOpen] = useState(false);
 
   return (
@@ -29,6 +30,7 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
         <ParcelSizeMultiSelect
           id="parcel-size"
           value={values.parcelSizes}
+          readOnly={readOnly}
           onChange={(parcelSizes) =>
             onChange({
               parcelSizes,
@@ -49,6 +51,7 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
           value={values.minimumOrderValue}
           onChange={(minimumOrderValue) => onChange({ minimumOrderValue })}
           placeholder="50"
+          readOnly={readOnly}
           error={errors.minimumOrderValue}
         />
       </FormField>
@@ -68,7 +71,8 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
                 value={values.minWeightKg}
                 onChange={(event) => onChange({ minWeightKg: sanitizeDecimalInput(event.target.value) })}
                 placeholder="5"
-                className={cn("pr-10", fieldInputClass(errors.minWeightKg))}
+                readOnly={readOnly}
+                className={cn("pr-10", fieldInputClass(errors.minWeightKg), readOnly && "cursor-default")}
               />
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-muted-foreground">
                 kg
@@ -88,7 +92,8 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
                 value={values.maxWeightKg}
                 onChange={(event) => onChange({ maxWeightKg: sanitizeDecimalInput(event.target.value) })}
                 placeholder="12"
-                className={cn("pr-10", fieldInputClass(errors.maxWeightKg))}
+                readOnly={readOnly}
+                className={cn("pr-10", fieldInputClass(errors.maxWeightKg), readOnly && "cursor-default")}
               />
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-muted-foreground">
                 kg
@@ -106,6 +111,7 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
         <StateMultiSelect
           id="states"
           value={values.states}
+          readOnly={readOnly}
           onChange={(states) => onChange({ states })}
         />
       </FormField>
@@ -115,18 +121,21 @@ export function RestrictionsFields({ values, errors, onChange }: RestrictionsFie
         label="Phone number"
         hint="Leave blank for all eligible customers."
         hintAction={
-          <button
-            type="button"
-            className="shrink-0 text-caption-sm font-medium text-foreground underline-offset-4 hover:underline"
-            onClick={() => setPhonePickerOpen(true)}
-          >
-            Choose phone number
-          </button>
+          readOnly ? undefined : (
+            <button
+              type="button"
+              className="shrink-0 text-caption-sm font-medium text-foreground underline-offset-4 hover:underline"
+              onClick={() => setPhonePickerOpen(true)}
+            >
+              Choose phone number
+            </button>
+          )
         }
       >
         <PhoneChipInput
           id="customer-phone"
           value={values.customerPhones}
+          readOnly={readOnly}
           onChange={(customerPhones) => onChange({ customerPhones })}
           onAdd={() => setPhonePickerOpen(true)}
         />

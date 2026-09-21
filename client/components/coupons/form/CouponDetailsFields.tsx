@@ -22,6 +22,7 @@ interface CouponDetailsFieldsProps {
   values: CouponFormValues;
   errors: CouponFormErrors;
   codeLocked?: boolean;
+  readOnly?: boolean;
   onTypeChange: (type: CouponType) => void;
   onChange: (patch: Partial<CouponFormValues>) => void;
 }
@@ -30,6 +31,7 @@ export function CouponDetailsFields({
   values,
   errors,
   codeLocked,
+  readOnly,
   onTypeChange,
   onChange,
 }: CouponDetailsFieldsProps) {
@@ -37,10 +39,14 @@ export function CouponDetailsFields({
     <div className="space-y-5">
       <div className="grid gap-5 md:grid-cols-2">
         <FormField id="coupon-type" label="Coupon type" required error={errors.type}>
-          <Select value={values.type} onValueChange={(value) => onTypeChange(value as CouponType)}>
+          <Select
+            value={values.type}
+            disabled={readOnly}
+            onValueChange={(value) => onTypeChange(value as CouponType)}
+          >
             <SelectTrigger
               id="coupon-type"
-              className={fieldInputClass(errors.type)}
+              className={cn(fieldInputClass(errors.type), readOnly && "disabled:cursor-default disabled:opacity-100")}
               aria-invalid={Boolean(errors.type)}
             >
               <SelectValue />
@@ -72,8 +78,9 @@ export function CouponDetailsFields({
                   onChange({ percentageValue: sanitizeDecimalInput(event.target.value) })
                 }
                 placeholder="10.5"
+                readOnly={readOnly}
                 aria-invalid={Boolean(errors.percentageValue)}
-                className={cn("pr-9", fieldInputClass(errors.percentageValue))}
+                className={cn("pr-9", fieldInputClass(errors.percentageValue), readOnly && "cursor-default")}
               />
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-muted-foreground">
                 %
@@ -94,6 +101,7 @@ export function CouponDetailsFields({
               value={values.fixedAmount}
               onChange={(fixedAmount) => onChange({ fixedAmount })}
               placeholder="5"
+              readOnly={readOnly}
               error={errors.fixedAmount}
             />
           </FormField>

@@ -8,6 +8,7 @@ interface DateRangeInputProps {
   startDate: string;
   endDate: string;
   invalid?: boolean;
+  readOnly?: boolean;
   className?: string;
   onChange: (range: { startDate: string; endDate: string }) => void;
 }
@@ -17,6 +18,7 @@ export function DateRangeInput({
   startDate,
   endDate,
   invalid,
+  readOnly,
   className,
   onChange,
 }: DateRangeInputProps) {
@@ -58,9 +60,13 @@ export function DateRangeInput({
         aria-invalid={invalid}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
+        disabled={readOnly}
+        onClick={() => {
+          if (readOnly) return;
+          setOpen((current) => !current);
+        }}
         className={cn(
-          "flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          "flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-default disabled:opacity-100 disabled:hover:bg-background",
           invalid && "border-destructive focus-visible:ring-destructive",
           className,
         )}

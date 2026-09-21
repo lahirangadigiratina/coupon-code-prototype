@@ -16,10 +16,11 @@ import {
 interface ParcelSizeMultiSelectProps {
   id: string;
   value: SelectableParcelSize[];
+  readOnly?: boolean;
   onChange: (sizes: SelectableParcelSize[]) => void;
 }
 
-export function ParcelSizeMultiSelect({ id, value, onChange }: ParcelSizeMultiSelectProps) {
+export function ParcelSizeMultiSelect({ id, value, readOnly, onChange }: ParcelSizeMultiSelectProps) {
   const summary =
     value.length === 0 ? "Any size" : value.map((size) => PARCEL_SIZE_LABELS[size]).join(", ");
 
@@ -31,6 +32,27 @@ export function ParcelSizeMultiSelect({ id, value, onChange }: ParcelSizeMultiSe
     }
     onChange(value.filter((item) => item !== size));
   };
+
+  if (readOnly) {
+    return (
+      <button
+        id={id}
+        type="button"
+        disabled
+        className="flex h-10 w-full cursor-default items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm opacity-100"
+      >
+        <span
+          className={cn(
+            "line-clamp-1 flex-1 text-left",
+            value.length === 0 && "text-muted-foreground",
+          )}
+        >
+          {summary}
+        </span>
+        <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+      </button>
+    );
+  }
 
   return (
     <DropdownMenu>
